@@ -1,0 +1,38 @@
+#!/usr/bin/perl -w
+use strict;
+use vars qw(%PREREQ %RECOMMEND);
+use lib 'lib';
+use Sys::Info qw(OSID);
+use Data::Dumper;
+
+# Includes prerequisities dynamically
+# since some parts are OS-dependent
+
+warn "-> Determining prerequisities on host OS ".OSID."...\n";
+
+%PREREQ = (
+   'IO::File' => 0,
+);
+
+if (OSID eq 'Linux') {
+   $PREREQ{'Linux::Distribution'} = 0;
+   #$RECOMMEND{'Unix::Processors'} = 0;
+}
+
+if(OSID eq 'Unknown') {
+   $RECOMMEND{'Unix::Processors'} = 0;
+}
+
+if (OSID eq 'Windows') {
+   # Win32::API ?
+}
+
+#warn "[DEBUG]\n";
+#warn "\t".Data::Dumper->Dump([\%PREREQ   ], ['*PREREQ'   ]);
+#warn "\t".Data::Dumper->Dump([\%RECOMMEND], ['*RECOMMEND']);
+
+warn "-> Resuming build process...\n";
+
+1;
+
+__END__

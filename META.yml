@@ -1,0 +1,52 @@
+---
+name: Sys-Info
+version: 0.2
+author:
+  - 'Burak Gursoy <burak@cpan.org>'
+abstract: Fetch information from the host system
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  IO::File: 0
+provides:
+  Sys::Info:
+    file: lib/Sys/Info.pm
+    version: 0.2
+  Sys::Info::CPU:
+    file: lib/Sys/Info/CPU.pm
+    version: 0.5
+  Sys::Info::CPU::Env:
+    file: lib/Sys/Info/CPU/Env.pm
+    version: 0.6
+  Sys::Info::CPU::Linux:
+    file: lib/Sys/Info/CPU/Linux.pm
+    version: 0.4
+  Sys::Info::CPU::Unknown:
+    file: lib/Sys/Info/CPU/Unknown.pm
+    version: 0.2
+  Sys::Info::CPU::Windows:
+    file: lib/Sys/Info/CPU/Windows.pm
+    version: 0.4
+  Sys::Info::CPU::Windows::WMI:
+    file: lib/Sys/Info/CPU/Windows/WMI.pm
+    version: 0.5
+  Sys::Info::OS:
+    file: lib/Sys/Info/OS.pm
+    version: 0.4
+  Sys::Info::OS::Linux:
+    file: lib/Sys/Info/OS/Linux.pm
+    version: 0.2
+  Sys::Info::OS::Unknown:
+    file: lib/Sys/Info/OS/Unknown.pm
+    version: 0.2
+  Sys::Info::OS::Windows:
+    file: lib/Sys/Info/OS/Windows.pm
+    version: 0.3
+  Sys::Info::Util:
+    file: lib/Sys/Info/Util.pm
+    version: 0.1
+generated_by: Module::Build version 0.2805
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
