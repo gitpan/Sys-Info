@@ -2,6 +2,9 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.51 Sun Dec 30 23:08:52 2007
+    => Fix for pod coverage test.
+
 0.50 Sun Dec 30 21:44:11 2007
     => Added 'multiplier' key to CPU metadata (WMI).
     => Implemented CPU load for Windows. However,

@@ -8,7 +8,7 @@ use constant OSID => {qw(
 )}->{$^O} || 'Unknown';
 use Carp qw( croak );
 
-$VERSION   = '0.50';
+$VERSION   = '0.51';
 
 @EXPORT_OK = qw( OSID _deprecate );
 

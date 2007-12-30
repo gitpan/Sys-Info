@@ -199,6 +199,10 @@ vary between different systems.
 
 
 
+=head2 product_type
+
+
+
 =head1 UTILITY METHODS
 
 These are some useful utility methods.
