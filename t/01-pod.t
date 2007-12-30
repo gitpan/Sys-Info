@@ -1,10 +1,14 @@
 #!/usr/bin/env perl -w
 use strict;
-use lib '..'; # to fix editor's syntax checker
-BEGIN { do 't/skip.test' or die "Can't include skip.test!" }
+use vars qw($ERROR);
+use Test::More;
 
-eval "use Test::Pod 1.00";
-if($@) {
+BEGIN {
+   eval q{ use Test::Pod 1.00; };
+   $ERROR = $@;
+}
+   
+if($ERROR) {
    plan skip_all => "Test::Pod 1.00 required for testing POD";
 } else {
    all_pod_files_ok();

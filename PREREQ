@@ -11,7 +11,8 @@ use Data::Dumper;
 warn "-> Determining prerequisities on host OS ".OSID."...\n";
 
 %PREREQ = (
-   'IO::File' => 0,
+   'IO::File'   => 0,
+   'Test::More' => 0,
 );
 
 if (OSID eq 'Linux') {

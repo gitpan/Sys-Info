@@ -1,5 +1,6 @@
-use ExtUtils::MakeMaker;
+use strict;
 use vars qw(%PREREQ);
+use ExtUtils::MakeMaker;
 
 do 'PREREQ' or die "Error including PREREQ: $!";
 

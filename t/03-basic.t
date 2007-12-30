@@ -1,8 +1,8 @@
 #!/usr/bin/env perl -w
 use strict;
-use Test;
 use Sys::Info;
 use Data::Dumper;
+use Test::More;
 
 BEGIN {
    plan tests => 1;
@@ -15,7 +15,7 @@ my $BUF  = "\n      %s";
 
 my $info = Sys::Info->new;
 my $os   = $info->os;
-my $cpu  = $info->cpu;
+my $cpu  = $info->device('CPU');
 
 print  "\n[Sys::Info]\n";
 printf "Perl version     : %s\n"       , $info->perl;
@@ -31,7 +31,7 @@ printf "OS long name     : %s\n"       , $os->long_name;
 printf "OS version       : %s\n"       , $os->version;
 printf "OS build         : %s\n"       , $os->build;
 printf "OS uptime        : %s\n"       , up($os->uptime)      || 'N/A';
-printf "Tick count       : %.2f days\n", tick($os->tick_count);
+printf "Tick count       : %s\n"       , tick($os->tick_count);
 printf "Node name        : %s\n"       , $os->node_name       || 'N/A';
 printf "Domain name      : %s\n"       , $os->domain_name     || 'N/A';
 printf "Workgroup        : %s\n"       , $os->workgroup       || 'N/A';
@@ -54,7 +54,10 @@ printf "Administrator    : %s\n"       , $os->is_root_user  ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_super_user ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_superuser  ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_su         ? 'yes' : 'no';
-printf "File system      : $BUF\n"     , dumper(FS => {$os->fs});
+printf "Logon Server     : %s\n"       , $os->logon_server    || 'N/A';
+printf "Time Zone        : %s\n"       , $os->tz              || 'N/A';
+printf "File system      : $BUF\n"     , dumper( FS   => { $os->fs   } );
+printf "OS meta          : $BUF\n"     , dumper( META => { $os->meta } );
 
 print  "\n[Sys::Info::CPU]\n";
 
@@ -63,6 +66,9 @@ printf "CPU Speed        : %s MHz\n"   , $cpu->speed            || 'N/A';
 printf "CPU load average : %s\n"       , $cpu->load             || 'N/A';
 printf "Number of CPUs   : %s\n"       , $cpu->count            || 'N/A';
 printf "CPU probe        : $BUF\n"     , dumper(CPU => $cpu->identify);
+
+# BIOS ???
+
 ok(1);
 
 #------------------------------------------------------------------------------#
@@ -80,7 +86,9 @@ sub up {
 
 sub tick {
    my $tick = shift || return 0;
-   return $tick / (60*60*24);
+   eval { require Time::Elapsed; };
+   return sprintf( "%.2f days", $tick / (60*60*24) ) if $@;
+   return Time::Elapsed::elapsed( $tick );
 }
 
 1;

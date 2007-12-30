@@ -1,6 +1,6 @@
 #!/usr/bin/env perl -w
-BEGIN { $^O = 'SomeFakeValue' }
 use strict;
+BEGIN { $^O = 'SomeFakeValue' }
 use Test;
 use Sys::Info;
 use Data::Dumper;
@@ -18,7 +18,7 @@ my $test;
 close TEST;
 
 $test =~ s<BEGIN\s+{.+?}><>s;
-$test =~ s<use Test><>s;
+$test =~ s<use Test.*;><>s;
 $test =~ s<ok\(.+?\)><>gs;
 eval $test;
 die "Can not run test: $@" if $@;

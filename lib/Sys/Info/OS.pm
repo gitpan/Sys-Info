@@ -1,67 +1,85 @@
 package Sys::Info::OS;
 use strict;
-use vars qw[$VERSION @ISA];
-use Sys::Info qw(OSID);
+use vars      qw( $VERSION @ISA );
+use Sys::Info qw(  OSID         );
 
-$VERSION = '0.4';
+$VERSION = '0.50';
 
 BEGIN {
-   # initial setup
-   my $class = __PACKAGE__ . '::' . OSID;
-   eval "require $class";
-   die  "Unable to load sub class $class. Error: $@" if $@;
-   push @ISA, $class;
-   CREATE_SYNONYMS_AND_UTILITY_METHODS: {
-      no strict qw(refs);
-      *is_admin  = *is_admin_user = *is_adminuser = *is_root_user = *is_rootuser
-                 = *is_super_user = *is_superuser = *is_su = *{$class.'::is_root'};
-      *is_win32  = *is_windows    = *is_win
-                                  = sub { OSID eq 'Windows' };
-      *is_linux  = *is_lin        = sub { OSID eq 'Linux'   };
-      *is_unknown                 = sub { OSID eq 'Unknown' };
-      *workgroup = *{$class.'::domain_name'};
-   }
-   CREATE_FAKES: {
-      no strict qw(refs);
-      my @fakes = qw(is_winnt is_win95 is_win9x);
-      foreach my $meth (@fakes) {
-         next if __PACKAGE__->can($meth);
-         *{$meth} = sub {0};
-      }
-   }
+    # initial setup
+    my $class = 'Sys::Info::Driver::' . OSID . '::OS';
+    eval "require $class";
+    die  "Unable to load sub class $class. Error: $@" if $@;
+    push @ISA, $class;
+
+    CREATE_SYNONYMS_AND_UTILITY_METHODS: {
+        no strict qw(refs);
+        *is_admin   = *is_admin_user
+                    = *is_adminuser
+                    = *is_root_user
+                    = *is_rootuser
+                    = *is_super_user
+                    = *is_superuser
+                    = *is_su
+                    = *{$class.'::is_root'}
+                    ;
+        *is_win32   = *is_windows
+                    = *is_win
+                    = sub { OSID eq 'Windows' }
+                    ;
+        *is_linux   = *is_lin
+                    = sub { OSID eq 'Linux'   }
+                    ;
+        *is_unknown = sub { OSID eq 'Unknown' };
+        *workgroup  = *{ $class . '::domain_name' };
+        *host_name  = *{ $class . '::node_name'   };
+        *time_zone  = *{ $class . '::tz'          };
+    }
+
+    CREATE_FAKES: {
+        my @fakes = qw(
+            is_winnt
+            is_win95
+            is_win9x
+            product_type
+        );
+
+        no strict qw(refs);
+        foreach my $meth ( @fakes ) {
+            next if __PACKAGE__->can( $meth );
+            *{ $meth } = sub {};
+        }
+    }
+
 }
 
 sub new {
-   my $class = shift;
-   my $self  = {
-      scalar(@_) % 2 ? () : (@_), # options to new()
-   };
-   bless  $self, $class;
-   $self->init if $self->can('init');
-   return $self;
+    my $class = shift;
+    my $self  = {
+        scalar(@_) % 2 ? () : (@_), # options to new()
+    };
+    bless  $self, $class;
+    $self->init if $self->can('init');
+    return $self;
 }
 
 sub ip {
-   my $self = shift;
-   require Socket;
-   require Sys::Hostname;
-   my $host = gethostbyname Sys::Hostname::hostname() || return;
-   my $ip   = Socket::inet_ntoa($host);
-   if($ip && $ip =~ m{\A 127}xms) {
-      if($self->SUPER::can('_ip')) {
-         $ip = $self->SUPER::_ip();
-      }
-   }
-   return $ip;
+    my $self = shift;
+    require Socket;
+    require Sys::Hostname;
+    my $host = gethostbyname Sys::Hostname::hostname() || return;
+    my $ip   = Socket::inet_ntoa($host);
+    if($ip && $ip =~ m{\A 127}xms) {
+        if($self->SUPER::can('_ip')) {
+            $ip = $self->SUPER::_ip();
+        }
+    }
+    return $ip;
 }
 
 1;
 
 __END__
-
-#<TODO>
-sub disk_quota {}
-#</TODO>
 
 =head1 NAME
 
@@ -86,7 +104,7 @@ Example:
    
    my %fs = $os->fs;
    print Data::Dumper->Dump([\%fs], ['*FILE_SYSTEM']);
-     
+   
    print  "B1ll G4teZ rull4z!\n" if $os->is_windows;
    print  "Pinguin detected!\n"  if $os->is_linux;
    if($os->is_windows) {
@@ -142,7 +160,7 @@ Returns the uptime in seconds since the machine booted.
 
 =head2 node_name
 
-Machine name.
+Machine name
 
 =head2 domain_name
 
@@ -172,6 +190,14 @@ Returns the IP number.
 
 Returns an info hash about the filesystem. The contents of the hash can
 vary between different systems.
+
+=head2 host_name
+
+
+
+=head2 time_zone
+
+
 
 =head1 UTILITY METHODS
 
@@ -259,7 +285,7 @@ Synonyms:
 =item *
 
 I don't have any access to any other os, so this module
-(currently) only supports Windows & Linux.
+(currently) only supports Windows & Linux. Windows support is better.
 
 =item *
 
@@ -293,7 +319,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2006 Burak Gürsoy. All rights reserved.
+Copyright 2006-2008 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
@@ -302,3 +328,22 @@ it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
+
+
+
+
+use Socket;
+sub network_name {
+   my $self  = shift;
+   my $ip    = shift;
+   my $iaddr = inet_aton($ip);
+   my $name  = gethostbyaddr($iaddr, AF_INET);
+   return $name || $ip;
+}
+
+
+
+
+#<TODO>
+sub disk_quota {}
+#</TODO>
