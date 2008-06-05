@@ -21,7 +21,7 @@ BEGIN {
              = *logon_server
              = sub { 0 }
              ;
-    *domain_name = sub {};
+    *domain_name = *edition = sub {};
 }
 
 sub meta {}

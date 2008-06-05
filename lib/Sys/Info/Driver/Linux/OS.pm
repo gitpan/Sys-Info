@@ -42,6 +42,7 @@ my %PATH      = (
     #/etc/issue
 );
 
+sub edition {}
 
 sub meta {
     my $self = shift;

@@ -288,7 +288,10 @@ sub wmi_cpu {
                 next;
             }
             next if not defined $val;
-            $val =~ s{\A \s+}{}ms if $name eq 'Name';
+            if ( $name eq 'Name' ) {
+                $val =~ s{\s+}{ }xmsg;
+                $val =~ s{\A \s+}{}xms;
+            }
             $attr{ $RENAME{$name} } = $val;
             $info = $WMI_INFO->{ $name } || next;
             $attr{ $RENAME{$name} } = $info->{ $attr{ $RENAME{$name} } }
@@ -314,7 +317,7 @@ sub wmi_cpu {
         push @attr, {%attr};
         %attr = (); # reset
     }
-    $CACHE = { TIMESTAMP => time, DATA => [@attr] } if $is_cache; 
+    $CACHE = { TIMESTAMP => time, DATA => [@attr] } if $is_cache;
     return @attr;
 }
 

@@ -2,6 +2,17 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_1 Fri Jun  6 00:11:05 2008
+    => Improved OS detection for Windows. Now the editions can also be detected.
+    => Windows Server 2008 is now supported.
+    => Added new method edition() to Sys::Info::OS.
+    => $os->name & $os->long_name & $os->version are now accept parameters.
+    => Added a way to detect if Win32::API is available or not under Windows.
+    => Initiated a XS interface to Win32 API functions.
+           TODO: Improve XS interface and disable WMI as it is so slow
+           TODO: Consider Win32::API usage.
+    => Added a Core 2 detection code to Sys::Info::Driver::Unknown::Device::CPU::Env.
+
 0.51 Sun Dec 30 23:08:52 2007
     => Fix for pod coverage test.
 

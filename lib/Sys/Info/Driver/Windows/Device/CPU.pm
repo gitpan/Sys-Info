@@ -51,14 +51,18 @@ sub identify {
 # $REG->{'0/Update Status'}
 sub _fetch_from_reg {
     my $self = shift;
-    my($name, @cpu);
+    my(@cpu);
 
     foreach my $k (keys %{ $REG }) {
-        $name = $REG->{ $k . '/ProcessorNameString' };
+        my $name = $REG->{ $k . '/ProcessorNameString' };
+        $name =~ s{\s+}{ }xmsg;
         $name =~ s{\A \s+}{}xms;
+        my $id = $REG->{ $k . '/Identifier' };
+
         push @cpu, {
             name          => $name,
             speed         => hex( $REG->{ $k . '/~MHz' } ),
+            architecture  => ($id =~ m{ \A (.+?) \s? Family }xmsi),
             data_width    => undef,
             bus_speed     => undef,
             address_width => undef,

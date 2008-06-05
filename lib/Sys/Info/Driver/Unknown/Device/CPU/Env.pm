@@ -39,6 +39,7 @@ sub identify {
     $count = 1 if not $count;
     for ( 1..$count ) {
         push @cpu, {
+            architecture  => ($CPU{id} =~ m{ \A (.+?) \s? Family }xmsi),
             data_width    => undef,
             speed         => undef,
             bus_speed     => undef,
@@ -127,6 +128,9 @@ sub _INTEL {
             9     => 'Mobile Pentium III',
             10    => 'Pentium III (0.18 µm)',
             11    => 'Pentium III (0.13 µm)',
+
+            13    => 'Celeron M', # ???
+            15    => 'Core 2 Duo (Merom)', # ???
     },
     7  => {
             0     => 'Itanium (IA-64)',

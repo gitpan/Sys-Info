@@ -26,6 +26,7 @@ if(OSID eq 'Unknown') {
 
 if (OSID eq 'Windows') {
    # Win32::API ?
+   $PREREQ{'Sys::Info::Driver::Windows::XS'} = 0;
 }
 
 #warn "[DEBUG]\n";

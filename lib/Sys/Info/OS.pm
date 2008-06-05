@@ -135,11 +135,18 @@ Object constructor.
 
 =head2 name
 
-Returns the OS name.
+Returns the OS name. Supports these named parameters: C<edition>:
+
+   # also include the edition info if present
+   $os->name( edition => 1 );
 
 =head2 long_name
 
 Returns the long OS name (with build number, etc.).
+Supports these named parameters: C<edition>:
+
+   # also include the edition info if present
+   $os->long_name( edition => 1 );
 
 =head2 version
 

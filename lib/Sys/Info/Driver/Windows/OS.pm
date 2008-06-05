@@ -1,6 +1,7 @@
 package Sys::Info::Driver::Windows::OS;
 use strict;
 use vars qw( $VERSION );
+use base qw( Sys::Info::Driver::Windows::OS::Editions );
 use Win32;
 use Win32::OLE qw( in );
 use Sys::Info::Driver::Windows;
@@ -16,6 +17,12 @@ use constant WMIDATE_TMPL => 'A4 A2 A2 A2 A2 A2';
 
 $VERSION = '0.50';
 
+# first row -> All; second row -> NT 4 SP6 and later
+my @OSV_NAMES = qw/
+    STRING  MAJOR   MINOR     BUILD       ID
+    SPMAJOR SPMINOR SUITEMASK PRODUCTTYPE
+/;
+
 my %OSVERSION;  # see _populate_osversion
 my %FILESYSTEM; # see _populate_fs
 my $NET = 'Sys::Info::Driver::Windows::OS::Net';
@@ -25,10 +32,49 @@ BEGIN {
     *is_winnt             = sub{ Win32::IsWinNT() };
 }
 
-sub product_type { shift->_populate_osversion(); $OSVERSION{RAW}->{PRODUCTTYPE} }
-sub name         { shift->_populate_osversion(); $OSVERSION{NAME}               }
-sub long_name    { shift->_populate_osversion(); $OSVERSION{LONGNAME}           }
-sub version      { shift->_populate_osversion(); $OSVERSION{VERSION}            }
+sub edition {
+    my $self = shift;
+    $self->_populate_osversion();
+    $OSVERSION{RAW}->{EDITION};
+}
+
+sub product_type {
+    my $self = shift;
+    $self->_populate_osversion();
+    return $self->_product_type( $OSVERSION{RAW}->{PRODUCTTYPE} );
+}
+
+sub name {
+    my $self = shift;
+    my %opt  = @_ % 2 ? () : (@_);
+    $self->_populate_osversion();
+    my $id = $opt{edition} ? 'NAME_EDITION' : 'NAME';
+    return $OSVERSION{ $id };
+}
+
+sub long_name {
+    my $self = shift;
+    my %opt  = @_ % 2 ? () : (@_);
+    $self->_populate_osversion();
+    my $id = $opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME';
+    return $OSVERSION{ $id };
+}
+
+sub version {
+    my $self = shift;
+    my %opt  = @_ % 2 ? () : (@_);
+    $self->_populate_osversion();
+    my $version = $OSVERSION{VERSION};
+
+    if ( $opt{short} ) {
+        my @v = split /\./, $version;
+        shift(@v);
+        return join '.', @v;
+    }
+
+    return $version;
+}
+
 sub build        { shift->_populate_osversion(); $OSVERSION{RAW}->{BUILD} || 0  }
 sub uptime       {                               time - shift->tick_count       }
 sub node_name    { Win32::NodeName()                     }
@@ -61,7 +107,7 @@ sub fs {
 }
 
 sub tz {
-    foreach my $objItem ( in WMI_FOR("Win32_TimeZone") ) {
+    foreach my $objItem ( in WMI_FOR('Win32_TimeZone') ) {
         return $objItem->Caption;
     }
 }
@@ -161,62 +207,80 @@ sub _populate_fs {
     return;
 }
 
-sub _populate_osversion {
-    return if %OSVERSION;
-    my $self = shift;
-    # Win32::GetOSName() is not reliable.
-    # Since, an older release will not have any idea about XP or Vista
-    my(
-        $STRING , $MAJOR  , $MINOR    , $BUILD      , $ID, # All
-        $SPMAJOR, $SPMINOR, $SUITEMASK, $PRODUCTTYPE       # NT 4 SP6 and later
-    ) = Win32::GetOSVersion();
+sub _osversion_table {
+    my $self  = shift;
+    my $OSV   = shift;
 
-    $MAJOR = 0 if not defined $MAJOR;
-    $MINOR = 0 if not defined $MINOR;
-
-    my $t = sub { $MAJOR == $_[0] && $MINOR == $_[1] };
-    my $j = join '.', $ID, $MAJOR, $MINOR;
-    my $os;
+    my $t       = sub { $OSV->{MAJOR} == $_[0] && $OSV->{MINOR} == $_[1] };
+    my $version = join '.', $OSV->{ID}, $OSV->{MAJOR}, $OSV->{MINOR};
+    my($os,$edition);
+    my $ID = $OSV->{ID};
 
        if ( $ID == 0 ) {        $os = 'Win32s'              }
     elsif ( $ID == 1 ) {
            if ( $t->(4,  0) ) { $os = 'Windows 95'          }
         elsif ( $t->(4, 10) ) { $os = 'Windows 98'          }
         elsif ( $t->(4, 90) ) { $os = 'Windows Me'          }
-        else                  { $os = "Windows 9x $j"       }
+        else                  { $os = "Windows 9x $version" }
     }
     elsif ( $ID == 2 ) {
+            $os = "Windows NT $version";
            if ( $t->(3, 51) ) { $os = 'Windows NT 3.51'     }
         elsif ( $t->(4,  0) ) { $os = 'Windows NT 4'        }
-        elsif ( $t->(5,  0) ) { $os = 'Windows 2000'        }
-        elsif ( $t->(5,  1) ) { $os = 'Windows XP'          }
-        elsif ( $t->(5,  2) ) { $os = 'Windows Server 2003' }
-        elsif ( $t->(6,  0) ) { $os = 'Windows Vista'       }
-        else                  { $os = "Windows NT $j"       }
+        else {
+            # damn editions!
+               if ( $t->(5,0) ) { $self->_2k_03_xp(    \$edition, \$os, $OSV ) }
+            elsif ( $t->(5,1) ) { $self->_xp_editions( \$edition, \$os, $OSV ) }
+            elsif ( $t->(5,2) ) { $self->_xp_or_03(    \$edition, \$os, $OSV ) }
+            elsif ( $t->(6,0) ) { $self->_vista_or_08( \$edition, \$os       ) }
+            else                { $os = "Windows NT $version" }
+        }
     }
-    else                      { $os = "Windows $j"          }
+    else {
+        $os = "Windows $version",
+    }
+
+    return $os, $version, $edition;
+}
+
+sub _populate_osversion {
+    return if %OSVERSION;
+    my $self = shift;
+    # Win32::GetOSName() is not reliable.
+    # Since, an older release will not have any idea about XP or Vista
+    my %OSV;
+    @OSV{ @OSV_NAMES } = Win32::GetOSVersion();
+
+    $OSV{MAJOR} = 0 if not defined $OSV{MAJOR};
+    $OSV{MINOR} = 0 if not defined $OSV{MINOR};
+
+    my($osname, $version, $edition) = $self->_osversion_table( \%OSV );
 
     %OSVERSION = (
-        NAME     => $os,
-        LONGNAME => '', # will be set below
-        VERSION  => $j,
-        RAW      => {
-                        STRING      => $STRING,
-                        MAJOR       => $MAJOR,
-                        MINOR       => $MINOR,
-                        BUILD       => $BUILD,
-                        ID          => $ID,
-                        SPMAJOR     => $SPMAJOR,
-                        SPMINOR     => $SPMINOR,
-                        PRODUCTTYPE => $self->_product_type( $PRODUCTTYPE ),
-                        #SUITEMASK   => $self->_suitemask( $SUITEMASK ),
-                    },
+        NAME             => $osname,
+        NAME_EDITION     => "$osname $edition",
+        LONGNAME         => '', # will be set below
+        LONGNAME_EDITION => '', # will be set below
+        VERSION          => $version,
+        RAW              => {
+            STRING      => $OSV{STRING},
+            MAJOR       => $OSV{MAJOR},
+            MINOR       => $OSV{MINOR},
+            BUILD       => $OSV{BUILD},
+            ID          => $OSV{ID},
+            SPMAJOR     => $OSV{SPMAJOR},
+            SPMINOR     => $OSV{SPMINOR},
+            PRODUCTTYPE => $OSV{PRODUCTTYPE},
+            EDITION     => $edition,
+            SUITEMASK   => $OSV{SUITEMASK}, #$self->_suitemask( $SUITEMASK ),
+        },
     );
 
     my $build  = '';
        $build .= "build $OSVERSION{RAW}->{BUILD}" if $OSVERSION{RAW}->{BUILD};
     my $string = $OSVERSION{RAW}->{STRING};
-    $OSVERSION{LONGNAME} = join ' ', $OSVERSION{NAME}, $string, $build;
+    $OSVERSION{LONGNAME}         = join ' ', $OSVERSION{NAME}, $string, $build;
+    $OSVERSION{LONGNAME_EDITION} = join ' ', $OSVERSION{NAME_EDITION}, $string, $build;
 
     return;
 }
@@ -263,10 +327,35 @@ version values and corresponding names are:
    2.5.1     Windows XP
    2.5.2     Windows Server 2003
    2.6.0     Windows Vista
+   2.6.0     Windows Server 2008*
+
+It is also possible to get the short version (C<5.1> instead of C<2.5.1>)
+if you pass the C<short> parameter with a true value:
+
+    my $v = $os->version( short => 1 );
+
+* Unfortunately Windows Server 2008 has the same version number as Vista.
+One needs to check the L<name> method to differentiate:
+
+    if ( $os->version eq '2.6.0' ) {
+        if ( $os->name eq 'Windows Server 2008' ) {
+            print "We have the server version, all right";
+        }
+        else {
+            print "Vista";
+        }
+    }
+    else {
+        print "Old Technology";
+    }
 
 =head1 SEE ALSO
 
-L<Win32>, L<Sys::Info>, L<Sys::Info::OS>.
+L<Win32>, L<Sys::Info>, L<Sys::Info::OS>,
+L<http://www.codeguru.com/cpp/w-p/system/systeminformation/article.php/c8973>,
+L<http://msdn.microsoft.com/en-us/library/cc216469.aspx>,
+L<http://msdn.microsoft.com/en-us/library/ms724358(VS.85).aspx>
+.
 
 =head1 AUTHOR
 
