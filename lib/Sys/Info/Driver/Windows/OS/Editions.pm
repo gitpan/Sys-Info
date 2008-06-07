@@ -20,11 +20,11 @@ my %VISTA_EDITION = ( # OK
 
 my %SERVER08_EDITION = ( # OK
    0x00000012 => q{Cluster Server Edition},
-   0x00000008 => q{Datacenter Edition Full Installation},
-   0x0000000C => q{Datacenter Edition Core Installation},
-   0x0000000A => q{Enterprise Edition Full Installation},
-   0x0000000E => q{Enterprise Edition Core Installation},
-   0x0000000F => q{Enterprise Edition For Itanium Based Systems},
+   0x00000008 => q{Datacenter Edition Full Installation}, # Windows Server ...
+   0x0000000C => q{Datacenter Edition Core Installation}, # Windows Server ...
+   0x0000000A => q{Enterprise Edition Full Installation}, # Windows Server ...
+   0x0000000E => q{Enterprise Edition Core Installation}, # Windows Server ...
+   0x0000000F => q{Enterprise Edition For Itanium Based Systems}, # Windows Server ...
    0x00000013 => q{Home Server Edition},
    0x00000018 => q{Server For Small Business Edition},
    0x00000009 => q{Small Business Server},
@@ -56,27 +56,30 @@ sub _xp_or_03 {
     my $osname_ref  = shift;
     my $OSV         = shift;
 
-    my $mask = $OSV->{RAW}{SUITEMASK};
-    my $pt   = $OSV->{RAW}{PRODUCTTYPE};
-    my $arch = $self->_cpu_arch;
+    my $mask   = $OSV->{RAW}{SUITEMASK};
+    my $pt     = $OSV->{RAW}{PRODUCTTYPE};
+    my $arch   = $self->_cpu_arch || '';
+    my $metric = GetSystemMetrics(SM_SERVERR2);
 
     $$osname_ref = 'Windows Server 2003';
 
     if ( $mask & 0x00000080 ) {
-        if ( GetSystemMetrics(SM_SERVERR2) ) {
-            $$edition_ref = $arch =~ m{ X86}i   ? 'R2 Datacenter Edition'
-                          : $arch =~ m{ AMD64}i ? 'R2 x64 Datacenter Edition'
-                          :                       'unknown'
+        if ( $metric ) {
+            $$edition_ref = $arch =~ m{X86}i   ? 'R2 Datacenter Edition'
+                          : $arch =~ m{AMD64}i ? 'R2 x64 Datacenter Edition'
+                          :                      'unknown'
                           ;
-        } else {
+        }
+        else {
             $$edition_ref = $arch =~m{X86}i     ? 'Datacenter Edition'
                           : $arch =~m{AMD64}i   ? 'Datacenter x64 Edition'
                           : $arch =~m{IA64}i    ? 'Datacenter Edition Itanium'
                           :                       'unknown'
                           ;
         }
-    } elsif ( $mask & 0x00000002 ) {
-        if ( GetSystemMetrics(SM_SERVERR2) ) {
+    }
+    elsif ( $mask & 0x00000002 ) {
+        if ( $metric ) {
             $$edition_ref = $arch =~ m{X86}i    ? 'R2 Enterprise Edition'
                           : $arch =~ m{AMD64}i  ? 'R2 x64 Enterprise Edition'
                           :                       'unknown'
@@ -91,23 +94,26 @@ sub _xp_or_03 {
         }
     }
     else {
-        if ( GetSystemMetrics(SM_SERVERR2) ) {
+        if ( $metric ) {
             $$edition_ref = $arch =~ m{X86}i   ? 'R2 Standard Edition'
                           : $arch =~ m{AMD64}i ? 'R2 x64 Standard Edition'
                           :                      'unknown'
                           ;
-        } elsif ( $pt > 1 ) {
+        }
+        elsif ( $pt > 1 ) {
             $$edition_ref = $arch =~ m{X86}i   ? 'Standard Edition'
                           : $arch =~ m{AMD64}i ? 'Standard x64 Edition'
                           :                      'unknown'
                           ;
-        } elsif ( $pt == 1 ) {
+        }
+        elsif ( $pt == 1 ) {
             $$osname_ref  = 'Windows XP';
             $$edition_ref = $arch =~ m{IA64}i  ? '64 bit Edition Version 2003'
                           : $arch =~ m{AMD64}i ? 'Professional x64 Edition'
                           :                      'unknown'
                           ;
-        } else {
+        }
+        else {
             $$edition_ref = 'unknown';
         }
     }
@@ -209,25 +215,3 @@ sub _vista_or_08 {
 1;
 
 __END__
-
-#original:
-
-my %SERVER08_EDITION = ( # ????
-   0x00000012 => q{Windows Cluster Server Edition},
-   0x00000008 => q{Windows Server Datacenter Edition Full Installation},
-   0x0000000C => q{Windows Server Datacenter Edition Core Installation},
-   0x0000000A => q{Windows Server Enterprise Edition Full Installation},
-   0x0000000E => q{Windows Server Enterprise Edition Core Installation},
-   0x0000000F => q{Windows Server Enterprise Edition For Itanium Based Systems},
-   0x00000013 => q{Windows Home Server Edition},
-   0x00000018 => q{Windows Server For Small Business Edition},
-   0x00000009 => q{Windows Small Business Server},
-   0x00000019 => q{Windows Small Business Server Premium Edition},
-   0x00000007 => q{Windows Server Standard Edition Full Installation},
-   0x0000000D => q{Windows Server Standard Edition Core Installation},
-   0x00000017 => q{Windows Storage Server Enterprise Edition},
-   0x00000014 => q{Windows Storage Server Express Edition},
-   0x00000015 => q{Windows Storage Server Standard Edition},
-   0x00000016 => q{Windows Storage Server Workgroup Edition},
-   0x00000011 => q{Windows Web Server Edition},
-);

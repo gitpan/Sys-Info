@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_2 Sun Jun  8 01:07:47 2008
+    => Sys::Info::OS::long_name() is now deprecated.
+    => Improved driver loading mechanism.
+    => $os->long_name deprecated. Use $os->name( long => 1 )
+
 0.52_1 Fri Jun  6 00:11:05 2008
     => Improved OS detection for Windows. Now the editions can also be detected.
     => Windows Server 2008 is now supported.

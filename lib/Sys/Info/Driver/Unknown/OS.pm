@@ -27,11 +27,19 @@ BEGIN {
 sub meta {}
 sub tz   {}
 
-sub name      { (POSIX::uname)[OS_SYSNAME] }
-sub long_name { join ' ', (POSIX::uname)[OS_SYSNAME, OS_RELEASE] }
-sub version   { (POSIX::uname)[OS_RELEASE] }
+sub name {
+    my $self  = shift;
+    my %opt   = @_ % 2 ? () : (@_);
+    my @uname = POSIX::uname();
+    my $rv    = $opt{long} ? join(' ', @uname[OS_SYSNAME, OS_RELEASE])
+              :              $uname[OS_SYSNAME]
+              ;
+    return $rv;
+}
 
-sub build     {
+sub version { (POSIX::uname)[OS_RELEASE] }
+
+sub build {
     my $build = (POSIX::uname)[OS_VERSION] || return;
     if ( $build =~ RE_BUILD ) {
         return $1;

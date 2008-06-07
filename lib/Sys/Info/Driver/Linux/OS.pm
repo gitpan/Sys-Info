@@ -94,8 +94,14 @@ sub tick_count {
     return $uptime[0];
 }
 
-sub name      { shift->_populate_osversion(); return $OSVERSION{NAME}         }
-sub long_name { shift->_populate_osversion(); return $OSVERSION{LONGNAME}     }
+sub name {
+    my $self = shift;
+    my %opt  = @_ % 2 ? () : (@_);
+    $self->_populate_osversion();
+    my $id   = $opt{long} ? 'LONGNAME' : 'NAME';
+    return $OSVERSION{ $id };
+}
+
 sub version   { shift->_populate_osversion(); return $OSVERSION{VERSION}      }
 sub build     { shift->_populate_osversion(); return $OSVERSION{RAW}->{BUILD} }
 sub uptime    {                               return time - shift->tick_count }

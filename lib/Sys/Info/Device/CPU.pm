@@ -1,17 +1,15 @@
 package Sys::Info::Device::CPU;
 use strict;
-use vars qw[$VERSION @ISA];
+use vars qw( $VERSION @ISA );
 use constant DEFAULT_TIMEOUT => 10;
 use Sys::Info qw(OSID);
 use Carp qw( croak );
+use base qw( Sys::Info::Base );
 
 $VERSION = '0.50';
 
 BEGIN {
-    my $class = 'Sys::Info::Driver::' . OSID . '::Device::CPU';
-    eval "require $class";
-    die  "Error loading subclass $class: $@" if $@;
-    push @ISA, $class;
+    push @ISA, __PACKAGE__->load_subclass('Sys::Info::Driver::%s::Device::CPU');
 }
 
 sub new {

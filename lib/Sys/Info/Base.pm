@@ -7,10 +7,25 @@ use constant MKTIME_YDAY  =>  0;
 use constant MKTIME_ISDST => -1;
 use IO::File;
 use Carp qw( croak );
+use Sys::Info qw( OSID );
 
 $VERSION = '0.50';
 
 my %LOAD_MODULE; # cache
+
+sub load_subclass { # hybrid: static+method
+    my $self     = shift;
+    my $template = shift || croak "Template missing for load_subclass()";
+
+    my $class = sprintf $template, OSID;
+    (my $file  = $class) =~ s{::}{/}xmsg;
+    eval { require $file . '.pm'; };
+    if ( $@ ) {
+        my $t = "Operating system identified as: '%s'. Unable to load sub class %s: %s";
+        croak sprintf( $t, OSID, $class, $@ );
+    }
+    return $class;
+}
 
 sub load_module {
     my $self  = shift;

@@ -1,15 +1,13 @@
 package Sys::Info::OS;
 use strict;
-use vars      qw( $VERSION @ISA );
-use Sys::Info qw(  OSID         );
+use vars      qw( $VERSION @ISA $AUTOLOAD );
+use Sys::Info qw(  OSID _deprecate );
+use base qw( Sys::Info::Base );
 
 $VERSION = '0.50';
 
 BEGIN {
-    # initial setup
-    my $class = 'Sys::Info::Driver::' . OSID . '::OS';
-    eval "require $class";
-    die  "Unable to load sub class $class. Error: $@" if $@;
+    my $class = __PACKAGE__->load_subclass('Sys::Info::Driver::%s::OS');
     push @ISA, $class;
 
     CREATE_SYNONYMS_AND_UTILITY_METHODS: {
@@ -21,7 +19,7 @@ BEGIN {
                     = *is_super_user
                     = *is_superuser
                     = *is_su
-                    = *{$class.'::is_root'}
+                    = *{ $class.'::is_root' }
                     ;
         *is_win32   = *is_windows
                     = *is_win
@@ -77,6 +75,32 @@ sub ip {
     return $ip;
 }
 
+# ------------------[ TO BE REMOVED
+
+sub AUTOLOAD {
+    my $self = shift;
+    my $name = $AUTOLOAD;
+       $name =~ s{.*:}{}xmsg;
+    if ( $name eq 'long_name') {
+        no strict qw(refs);
+        *{ $name } = sub {
+            _deprecate({
+                msg  => "Use \$os->name( long => 1 ) instead.",
+                name => "Sys::Info::OS::long_name",
+            });
+            my $self = shift;
+            my %opt  = @_ % 2 ? () : (@_);
+            $opt{long} = 1;
+            return $self->name( %opt );
+        };
+        return $self->$name( @_ );
+    }
+    my $class = ref($self) || $self;
+    die "Unable to locate $class method $name";
+}
+
+sub DESTROY {}
+
 1;
 
 __END__
@@ -110,7 +134,7 @@ Example:
    if($os->is_windows) {
       printf "This is a %s based system\n", $os->is_winnt ? 'NT' : '9.x';
    }
-   printf "Operating System: %s\n", $os->long_name;
+   printf "Operating System: %s\n", $os->name( long => 1 );
    
    my $user = $os->login_name_real || $os->login_name || 'User';
    print "$user, You've Got The P.O.W.E.R.!\n" if $os->is_root;
@@ -135,18 +159,16 @@ Object constructor.
 
 =head2 name
 
-Returns the OS name. Supports these named parameters: C<edition>:
+Returns the OS name. Supports these named parameters: C<edition>, C<long>:
 
    # also include the edition info if present
    $os->name( edition => 1 );
 
-=head2 long_name
-
-Returns the long OS name (with build number, etc.).
+This will returns the long OS name (with build number, etc.).
 Supports these named parameters: C<edition>:
 
    # also include the edition info if present
-   $os->long_name( edition => 1 );
+   $os->name( long => 1, edition => 1 );
 
 =head2 version
 

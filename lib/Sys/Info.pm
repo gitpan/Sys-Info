@@ -1,14 +1,21 @@
 package Sys::Info;
 use strict;
 use vars qw( $VERSION @EXPORT_OK );
-use constant OSID => {qw(
-    MSWin32   Windows
-    MSWin64   Windows
-    linux     Linux
-)}->{$^O} || 'Unknown';
 use Carp qw( croak );
 
-$VERSION   = '0.52_1';
+BEGIN {
+    if ( ! defined &OSID ) {
+        my %OS = qw(
+            MSWin32   Windows
+            MSWin64   Windows
+            linux     Linux
+        );
+        my $ID = $OS{ $^O } || 'Unknown';
+        *OSID = sub { "$ID" }
+    }
+}
+
+$VERSION   = '0.52_2';
 
 @EXPORT_OK = qw( OSID _deprecate );
 
@@ -136,7 +143,7 @@ Sys::Info - Fetch information from the host system
     }
     my $cpu = $info->device('CPU');
     my $os  = $info->os;
-    printf "Operating System is %s\n", $os->long_name;
+    printf "Operating System is %s\n", $os->name( long => 1 );
     printf "CPU: %s\n", scalar $cpu->identify;
 
 =head1 DESCRIPTION
@@ -177,6 +184,12 @@ This method is just a combination of C<perl> & C<perl_build>.
 
 If the code is used under a HTTP server and this server is recognised,
 returns the name of this server. Returns C<undef> otherwise.
+
+=head1 CONSTANTS
+
+=head2 OSID
+
+Returns the OS identifier.
 
 =head1 SEE ALSO
 

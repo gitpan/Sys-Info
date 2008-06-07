@@ -48,15 +48,9 @@ sub name {
     my $self = shift;
     my %opt  = @_ % 2 ? () : (@_);
     $self->_populate_osversion();
-    my $id = $opt{edition} ? 'NAME_EDITION' : 'NAME';
-    return $OSVERSION{ $id };
-}
-
-sub long_name {
-    my $self = shift;
-    my %opt  = @_ % 2 ? () : (@_);
-    $self->_populate_osversion();
-    my $id = $opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME';
+    my $id = $opt{long} ? ($opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME')
+           :              ($opt{edition} ? 'NAME_EDITION'     : 'NAME'    )
+           ;
     return $OSVERSION{ $id };
 }
 
@@ -310,6 +304,10 @@ This is a private sub-class.
 
 =head1 DESCRIPTION
 
+This document only discusses the driver specific parts.
+
+=head1 METHODS
+
 =head2 version
 
 Version method returns the Windows version in C<%d.%d.%d> format. Possible
@@ -329,7 +327,7 @@ version values and corresponding names are:
    2.6.0     Windows Vista
    2.6.0     Windows Server 2008*
 
-It is also possible to get the short version (C<5.1> instead of C<2.5.1>)
+It is also possible to get the short version (C<5.1> instead of C<2.5.1> for XP)
 if you pass the C<short> parameter with a true value:
 
     my $v = $os->version( short => 1 );
