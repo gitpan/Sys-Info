@@ -15,7 +15,7 @@ BEGIN {
     }
 }
 
-$VERSION   = '0.52_2';
+$VERSION   = '0.52_3';
 
 @EXPORT_OK = qw( OSID _deprecate );
 

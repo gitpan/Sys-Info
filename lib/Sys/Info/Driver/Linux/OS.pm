@@ -118,14 +118,10 @@ sub is_root {
 }
 
 sub login_name {
-    return '' if defined &Sys::Info::EMULATE;
-    return POSIX::getlogin();
-}
-
-sub login_name_real {
-    my $name = login_name() || return '';
-    my $real = (getpwnam $name)[REAL_NAME_FIELD];
-    return $real || $name;
+    my $self  = shift;
+    my %opt   = @_ % 2 ? () : (@_);
+    my $login = POSIX::getlogin();
+    return $opt{real} ? (getpwnam $login)[REAL_NAME_FIELD] : $login;
 }
 
 sub node_name { (POSIX::uname())[NODENAME] }

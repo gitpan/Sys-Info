@@ -81,7 +81,8 @@ sub AUTOLOAD {
     my $self = shift;
     my $name = $AUTOLOAD;
        $name =~ s{.*:}{}xmsg;
-    if ( $name eq 'long_name') {
+
+    if ( $name eq 'long_name' ) {
         no strict qw(refs);
         *{ $name } = sub {
             _deprecate({
@@ -95,6 +96,22 @@ sub AUTOLOAD {
         };
         return $self->$name( @_ );
     }
+
+    if ( $name eq 'login_name_real' ) {
+        no strict qw(refs);
+        *{ $name } = sub {
+            _deprecate({
+                msg  => "Use \$os->login_name( real => 1 ) instead.",
+                name => "Sys::Info::OS::login_name_real",
+            });
+            my $self = shift;
+            my %opt  = @_ % 2 ? () : (@_);
+            $opt{real} = 1;
+            return $self->login_name( %opt );
+        };
+        return $self->$name( @_ );
+    }
+
     my $class = ref($self) || $self;
     die "Unable to locate $class method $name";
 }
@@ -164,8 +181,7 @@ Returns the OS name. Supports these named parameters: C<edition>, C<long>:
    # also include the edition info if present
    $os->name( edition => 1 );
 
-This will returns the long OS name (with build number, etc.).
-Supports these named parameters: C<edition>:
+This will return the long OS name (with build number, etc.):
 
    # also include the edition info if present
    $os->name( long => 1, edition => 1 );
@@ -205,11 +221,10 @@ Synonyms:
 
 =head2 login_name
 
-Returns the name of the effective user.
+Returns the name of the effective user. Supports parameters in
+C<< name => value >> format. Accepted parameters: C<real>:
 
-=head2 login_name_real
-
-Returns the real name of the effective user.
+    my $user = $os->login_name( real => 1 ) || $os->login_name;
 
 =head2 ip
 
@@ -218,7 +233,7 @@ Returns the IP number.
 =head2 fs
 
 Returns an info hash about the filesystem. The contents of the hash can
-vary between different systems.
+vary among different systems.
 
 =head2 host_name
 

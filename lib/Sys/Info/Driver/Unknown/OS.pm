@@ -57,8 +57,6 @@ sub login_name {
     return $name;
 }
 
-sub login_name_real { &login_name }
-
 1;
 
 __END__

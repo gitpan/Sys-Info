@@ -13,7 +13,7 @@ $VERSION = '0.50';
 
 my %LOAD_MODULE; # cache
 
-sub load_subclass { # hybrid: static+method
+sub load_subclass { # hybrid: static+dynamic
     my $self     = shift;
     my $template = shift || croak "Template missing for load_subclass()";
 

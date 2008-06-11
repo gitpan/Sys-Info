@@ -2,6 +2,9 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_3 Wed Jun 11 21:11:46 2008
+    => $os->login_name_real() is now deprecated. Use $os->login_name( real => 1 )
+
 0.52_2 Sun Jun  8 01:07:47 2008
     => Sys::Info::OS::long_name() is now deprecated.
     => Improved driver loading mechanism.

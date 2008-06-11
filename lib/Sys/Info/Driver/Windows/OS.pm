@@ -13,6 +13,8 @@ use constant is_root => defined &Win32::IsAdminUser ? Win32::IsAdminUser()
                      :  Win32::IsWin95()            ? 1
                      :                                0
                      ;
+use constant node_name => Win32::NodeName();
+
 use constant WMIDATE_TMPL => 'A4 A2 A2 A2 A2 A2';
 
 $VERSION = '0.50';
@@ -69,23 +71,33 @@ sub version {
     return $version;
 }
 
-sub build        { shift->_populate_osversion(); $OSVERSION{RAW}->{BUILD} || 0  }
-sub uptime       {                               time - shift->tick_count       }
-sub node_name    { Win32::NodeName()                     }
-sub domain_name  { is_win95() ? '' : Win32::DomainName() }
+sub build {
+    my $self = shift;
+    $self->_populate_osversion();
+    return $OSVERSION{RAW}->{BUILD} || 0;
+}
+
+sub uptime {
+    my $self = shift;
+    return time - $self->tick_count;
+}
+
+sub domain_name {
+    my $self = shift;
+    return $self->is_win95() ? '' : Win32::DomainName()
+}
 
 sub tick_count {
+    my $self = shift;
     my $tick = Win32::GetTickCount();
     return $tick ? $tick / 1000 : 0; # in miliseconds
 }
 
-sub login_name { Win32::LoginName() }
-
-sub login_name_real {
-    my $self = shift;
-    my $name = $self->login_name || return '';
-    my $real = $NET->user_fullname($name);
-    return $real || $name;
+sub login_name {
+    my $self  = shift;
+    my %opt   = @_ % 2 ? () : (@_);
+    my $login = Win32::LoginName();
+    return $opt{real} && $login ? $NET->user_fullname( $login ) : $login;
 }
 
 sub logon_server {
