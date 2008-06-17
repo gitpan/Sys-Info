@@ -38,11 +38,18 @@ sub hyper_threading {
     $self->identify if not $self->{CACHE};
     my %test;
     my $logical = 0;
+
     foreach my $cpu ( @{ $self->{CACHE} } ) {
         $logical++;
+        my $wmi_cores   = $cpu->{NumberOfCores};
+        my $wmi_logical = $cpu->{NumberOfLogicalProcessors};
+        if ( defined $wmi_cores && defined $wmi_logical ) {
+            return $wmi_cores != $wmi_logical;
+        }
         next if not exists $cpu->{socket_designation};
         $test{ $cpu->{socket_designation} }++;
     }
+
     return 0 if $logical < 1;  # failed to fill cache
     my $physical = keys %test;
     return 0 if $physical < 1; # an error occurred somehow

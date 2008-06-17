@@ -224,12 +224,14 @@ my %RENAME = qw(
     CurrentVoltage      voltage
     UpgradeMethod       upgrade_method
     Availability        availability
+
+    NumberOfCores               NumberOfCores
+    NumberOfLogicalProcessors   NumberOfLogicalProcessors
 );
 
 # TODO: Only available under Vista (which I don't have any access right now)
 my @VISTA_OPTIONS = qw(
-    NumberOfCores
-    NumberOfLogicalProcessors
+
     L3CacheSpeed
     L3CacheSize
 );
@@ -280,20 +282,22 @@ sub wmi_cpu {
     my $cache;
     my @Lcache;
     my $info;
-    foreach my $cpu (in WMI_FOR('Win32_Processor') ) {
-        foreach my $name (keys %RENAME) {
+    my @foo = in WMI_FOR('Win32_Processor');
+
+    OUTER: foreach my $cpu (in WMI_FOR('Win32_Processor') ) {
+        INNER: foreach my $name (keys %RENAME) {
             eval { $val = $cpu->$name(); };
             if ( $@ ) {
                 warn "[WMI ERROR] $@\n";
-                next;
+                next INNER;
             }
-            next if not defined $val;
+            next INNER if not defined $val;
             if ( $name eq 'Name' ) {
                 $val =~ s{\s+}{ }xmsg;
                 $val =~ s{\A \s+}{}xms;
             }
             $attr{ $RENAME{$name} } = $val;
-            $info = $WMI_INFO->{ $name } || next;
+            $info = $WMI_INFO->{ $name } || next INNER;
             $attr{ $RENAME{$name} } = $info->{ $attr{ $RENAME{$name} } }
                                       ||
                                       $attr{ $RENAME{$name} };
@@ -317,6 +321,7 @@ sub wmi_cpu {
         push @attr, {%attr};
         %attr = (); # reset
     }
+
     $CACHE = { TIMESTAMP => time, DATA => [@attr] } if $is_cache;
     return @attr;
 }

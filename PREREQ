@@ -2,7 +2,7 @@
 use strict;
 use vars qw(%PREREQ %RECOMMEND);
 use lib 'lib';
-use Sys::Info qw(OSID);
+use Sys::Info qw( OSID );
 use Data::Dumper;
 
 # Includes prerequisities dynamically
@@ -12,21 +12,20 @@ warn "-> Determining prerequisities on host OS ".OSID."...\n";
 
 %PREREQ = (
    'IO::File'   => 0,
-   'Test::More' => 0,
+   'Test::More' => '0.40',
 );
 
-if (OSID eq 'Linux') {
+if ( OSID eq 'Windows' ) {
+   # Win32::API ?
+   $PREREQ{'Sys::Info::Driver::Windows::XS'} = '0.20';
+}
+elsif (OSID eq 'Linux') {
    $PREREQ{'Linux::Distribution'} = 0;
    #$RECOMMEND{'Unix::Processors'} = 0;
 }
-
-if(OSID eq 'Unknown') {
+else {
+   # OSID eq 'Unknown'
    $RECOMMEND{'Unix::Processors'} = 0;
-}
-
-if (OSID eq 'Windows') {
-   # Win32::API ?
-   $PREREQ{'Sys::Info::Driver::Windows::XS'} = 0;
 }
 
 #warn "[DEBUG]\n";

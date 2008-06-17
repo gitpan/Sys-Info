@@ -1,23 +1,27 @@
 package Sys::Info::Driver::Windows::OS;
 use strict;
 use vars qw( $VERSION );
+
+$VERSION = '0.50';
+
 use base qw( Sys::Info::Driver::Windows::OS::Editions );
 use Win32;
 use Win32::OLE qw( in );
 use Sys::Info::Driver::Windows;
 use Sys::Info::Driver::Windows::OS::Net;
 use Carp qw( croak );
+use Win32::TieRegistry Delimiter => '/';
 
+use constant REG_CDKEY    => q{HKEY_LOCAL_MACHINE/Software/Microsoft/}
+                           . q{Windows NT/CurrentVersion//DigitalProductId};
+use constant REG_OCDKEY   => q{HKEY_LOCAL_MACHINE/Software/Microsoft/Office};
+use constant WMIDATE_TMPL => 'A4 A2 A2 A2 A2 A2';
 # Win32::IsAdminUser(): Perl 5.8.3 Build 809 Monday, Feb 2, 2004
 use constant is_root => defined &Win32::IsAdminUser ? Win32::IsAdminUser()
                      :  Win32::IsWin95()            ? 1
                      :                                0
                      ;
 use constant node_name => Win32::NodeName();
-
-use constant WMIDATE_TMPL => 'A4 A2 A2 A2 A2 A2';
-
-$VERSION = '0.50';
 
 # first row -> All; second row -> NT 4 SP6 and later
 my @OSV_NAMES = qw/
@@ -27,7 +31,6 @@ my @OSV_NAMES = qw/
 
 my %OSVERSION;  # see _populate_osversion
 my %FILESYSTEM; # see _populate_fs
-my $NET = 'Sys::Info::Driver::Windows::OS::Net';
 
 BEGIN {
     *is_win9x = *is_win95 = sub{ Win32::IsWin95() };
@@ -35,31 +38,30 @@ BEGIN {
 }
 
 sub edition {
-    my $self = shift;
-    $self->_populate_osversion();
+    my $self = shift->_populate_osversion;
     $OSVERSION{RAW}->{EDITION};
 }
 
 sub product_type {
-    my $self = shift;
-    $self->_populate_osversion();
-    return $self->_product_type( $OSVERSION{RAW}->{PRODUCTTYPE} );
+    my $self = shift->_populate_osversion;
+    my %opt  = @_ % 2 ? () : (@_);
+    my $raw  = $OSVERSION{RAW}->{PRODUCTTYPE};
+    return $raw if $opt{raw};
+    return $self->_product_type( $raw );
 }
 
 sub name {
-    my $self = shift;
+    my $self = shift->_populate_osversion;
     my %opt  = @_ % 2 ? () : (@_);
-    $self->_populate_osversion();
-    my $id = $opt{long} ? ($opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME')
-           :              ($opt{edition} ? 'NAME_EDITION'     : 'NAME'    )
-           ;
+    my $id   = $opt{long} ? ($opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME')
+             :              ($opt{edition} ? 'NAME_EDITION'     : 'NAME'    )
+             ;
     return $OSVERSION{ $id };
 }
 
 sub version {
-    my $self = shift;
-    my %opt  = @_ % 2 ? () : (@_);
-    $self->_populate_osversion();
+    my $self    = shift->_populate_osversion;
+    my %opt     = @_ % 2 ? () : (@_);
     my $version = $OSVERSION{VERSION};
 
     if ( $opt{short} ) {
@@ -72,8 +74,7 @@ sub version {
 }
 
 sub build {
-    my $self = shift;
-    $self->_populate_osversion();
+    my $self = shift->_populate_osversion;
     return $OSVERSION{RAW}->{BUILD} || 0;
 }
 
@@ -97,13 +98,16 @@ sub login_name {
     my $self  = shift;
     my %opt   = @_ % 2 ? () : (@_);
     my $login = Win32::LoginName();
-    return $opt{real} && $login ? $NET->user_fullname( $login ) : $login;
+    return $opt{real} && $login
+           ? Sys::Info::Driver::Windows::OS::Net->user_fullname( $login )
+           : $login
+           ;
 }
 
 sub logon_server {
     my $self = shift;
     my $name = $self->login_name || return '';
-    return $NET->user_logon_server( $name );
+    return Sys::Info::Driver::Windows::OS::Net->user_logon_server( $name );
 }
 
 sub fs {
@@ -113,9 +117,37 @@ sub fs {
 }
 
 sub tz {
+    my $self = shift;
     foreach my $objItem ( in WMI_FOR('Win32_TimeZone') ) {
         return $objItem->Caption;
     }
+}
+
+sub cdkey {
+    return if Win32::IsWin95(); # not supported
+    my $self = shift;
+    my %opt  = @_ % 2 ? () : (@_);
+
+    if ( $opt{office} ) {
+        my $base = $Registry->{ +REG_OCDKEY };
+        my @versions;
+        foreach my $e ( keys %{ $base } ) {
+            next if $e =~ m{[^0-9\./]}; # only get versioned keys
+            $e =~ s{ / \z }{}xms;
+            # check all installed office versions
+            push @versions, $e if $base->{ $e . '/Registration' };
+        }
+
+        my @list;
+        foreach my $v ( sort {$b <=> $a } @versions ) {
+            my $key = $base->{ $v . '/Registration' };
+            my $id  = (keys %{ $key })[0];
+            push @list, decode_serial_key $key->{ $id . 'DigitalProductId' };
+        }
+        return @list; #return all available keys
+    }
+
+    return decode_serial_key( $Registry->{ +REG_CDKEY } );
 }
 
 sub meta { # linux ???
@@ -249,11 +281,12 @@ sub _osversion_table {
     return $os, $version, $edition;
 }
 
-sub _populate_osversion {
-    return if %OSVERSION;
+sub _populate_osversion { # returns the object
     my $self = shift;
+    return $self if %OSVERSION; # build once use everywhere :p
     # Win32::GetOSName() is not reliable.
     # Since, an older release will not have any idea about XP or Vista
+    # Server 2008 is tricky since it has the same version number as Vista
     my %OSV;
     @OSV{ @OSV_NAMES } = Win32::GetOSVersion();
 
@@ -288,7 +321,7 @@ sub _populate_osversion {
     $OSVERSION{LONGNAME}         = join ' ', $OSVERSION{NAME}, $string, $build;
     $OSVERSION{LONGNAME_EDITION} = join ' ', $OSVERSION{NAME_EDITION}, $string, $build;
 
-    return;
+    return $self;
 }
 
 sub _product_type {
@@ -299,7 +332,7 @@ sub _product_type {
         2 => 'Domain Controller',
         3 => 'Server',
     );
-    return $type{$pt}
+    return $type{$pt};
 }
 
 1;

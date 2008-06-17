@@ -61,6 +61,9 @@ printf "Time Zone        : %s\n"       , $os->tz              || 'N/A';
 printf "File system      : $BUF\n"     , dumper( FS   => { $os->fs   } );
 printf "OS meta          : $BUF\n"     , dumper( META => { $os->meta } );
 
+printf "Windows CD Key   : %s\n"       ,  $os->cdkey    || 'N/A';
+printf "MSO CD Key       : %s\n"       , ($os->cdkey( office => 1 ))[0] || 'N/A';
+
 print  "\n[Sys::Info::CPU]\n";
 
 printf "CPU Name         : %s\n"       , scalar($cpu->identify) || 'N/A';

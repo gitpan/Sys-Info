@@ -35,11 +35,13 @@ BEGIN {
     }
 
     CREATE_FAKES: {
+        # driver specific methods
         my @fakes = qw(
             is_winnt
             is_win95
             is_win9x
             product_type
+            cdkey
         );
 
         no strict qw(refs);

@@ -16,7 +16,7 @@ BEGIN {
     *_UPOK = sub {$UP};
 }
 
-sub load  {0}
+sub load {0}
 
 sub identify {
     my $self = shift;

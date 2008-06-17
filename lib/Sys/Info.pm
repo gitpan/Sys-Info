@@ -3,6 +3,8 @@ use strict;
 use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
 
+$VERSION = '0.52_4';
+
 BEGIN {
     if ( ! defined &OSID ) {
         my %OS = qw(
@@ -14,8 +16,6 @@ BEGIN {
         *OSID = sub { "$ID" }
     }
 }
-
-$VERSION   = '0.52_3';
 
 @EXPORT_OK = qw( OSID _deprecate );
 

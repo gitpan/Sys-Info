@@ -26,6 +26,7 @@ t/02-pod-coverage.t
 t/03-basic.t
 t/04-unknown.t
 t/05-unknown2.t
+t/06-device-cpu.t
 Makefile.PL
 Build.PL
 Changes

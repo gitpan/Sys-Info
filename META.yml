@@ -1,6 +1,6 @@
 ---
 name: Sys-Info
-version: 0.52_3
+version: 0.52_4
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Fetch information from the host system
@@ -9,12 +9,12 @@ resources:
   license: http://dev.perl.org/licenses/
 requires:
   IO::File: 0
-  Sys::Info::Driver::Windows::XS: 0
-  Test::More: 0
+  Sys::Info::Driver::Windows::XS: 0.20
+  Test::More: 0.40
 provides:
   Sys::Info:
     file: lib/Sys/Info.pm
-    version: 0.52_3
+    version: 0.52_4
   Sys::Info::Base:
     file: lib/Sys/Info/Base.pm
     version: 0.50

@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_4 Wed Jun 18 01:53:56 2008
+    => Tidied ::Windows::OS.
+    => New ::Windows::OS method cdkey().
+    => Fix for ::CPU::hyper_threading():
+
 0.52_3 Wed Jun 11 21:11:46 2008
     => $os->login_name_real() is now deprecated. Use $os->login_name( real => 1 )
 
