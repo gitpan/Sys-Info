@@ -41,8 +41,8 @@ sub hyper_threading {
 
     foreach my $cpu ( @{ $self->{CACHE} } ) {
         $logical++;
-        my $wmi_cores   = $cpu->{NumberOfCores};
-        my $wmi_logical = $cpu->{NumberOfLogicalProcessors};
+        my $wmi_cores   = $cpu->{number_of_cores};
+        my $wmi_logical = $cpu->{number_of_logical_processors};
         if ( defined $wmi_cores && defined $wmi_logical ) {
             return $wmi_cores != $wmi_logical;
         }
@@ -62,6 +62,20 @@ sub speed {
     my @cpu = @{ $self->{CACHE} };
     return if !@cpu || !ref($cpu[0]);
     return $cpu[0]->{speed};
+}
+
+sub load {
+    my $self   = shift;
+    my $level  = shift || 0;
+
+    $level += 0;
+    $level  = int $level;
+
+    if ( $level != 0 && $level != 1 && $level != 2 ) {
+        die "Illegal cpu_load level: $level";
+    }
+
+    return $self->SUPER::load( $level );
 }
 
 # ------------------------[ P R I V A T E ]------------------------ #

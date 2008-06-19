@@ -1,5 +1,6 @@
 lib/Sys/Info.pm
 lib/Sys/Info/Base.pm
+lib/Sys/Info/Constants.pm
 lib/Sys/Info/CPU.pm
 lib/Sys/Info/Device.pm
 lib/Sys/Info/Driver.pm

@@ -248,6 +248,9 @@ vary among different systems.
 =head2 product_type
 
 
+=head2 cdkey
+
+
 
 =head1 UTILITY METHODS
 

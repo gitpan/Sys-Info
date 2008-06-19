@@ -2,21 +2,17 @@ package Sys::Info::Driver::Linux::Device::CPU;
 use strict;
 use vars qw($VERSION);
 use base qw(Sys::Info::Base);
+use Sys::Info::Driver::Linux;
 
 $VERSION = '0.50';
-
-my %PATH = (
-    loadavg => '/proc/loadavg', # average cpu load
-    cpu     => '/proc/cpuinfo',
-);
 
 sub identify {
     my $self = shift;
     return $self->_serve_from_cache(wantarray) if $self->{CACHE};
 
     my @cpu;
-    foreach my $e ( split /\n\n/, $self->trim( $self->slurp($PATH{cpu}) ) ) {
-        push @cpu, { $self->_parse($e) };
+    foreach my $e ( split /\n\n/, $self->trim( proc->{cpuinfo} ) ) {
+        push @cpu, { $self->_parse_cpuinfo($e) };
     }
     $self->{CACHE} = [@cpu];
 
@@ -25,18 +21,12 @@ sub identify {
 
 sub load {
     my $self   = shift;
-    my $level  = shift || 0;
-
-    $level += 0;
-    $level  = int $level;
-
-    die "Illegal cpu_load level: $level" if $level < 0 || $level > 2;
-
-    my @loads = split /\s+/, $self->slurp($PATH{loadavg});
+    my $level  = shift;
+    my @loads  = split /\s+/, $self->slurp( proc->{loadavg} );
     return $loads[$level];
 }
 
-sub _parse {
+sub _parse_cpuinfo {
     my $self = shift;
     my $raw  = shift || die "Parser called without data";
     my($k, $v);

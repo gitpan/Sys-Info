@@ -1,6 +1,6 @@
 ---
 name: Sys-Info
-version: 0.52_4
+version: 0.52_5
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Fetch information from the host system
@@ -14,12 +14,15 @@ requires:
 provides:
   Sys::Info:
     file: lib/Sys/Info.pm
-    version: 0.52_4
+    version: 0.52_5
   Sys::Info::Base:
     file: lib/Sys/Info/Base.pm
     version: 0.50
   Sys::Info::CPU:
     file: lib/Sys/Info/CPU.pm
+    version: 0.50
+  Sys::Info::Constants:
+    file: lib/Sys/Info/Constants.pm
     version: 0.50
   Sys::Info::Device:
     file: lib/Sys/Info/Device.pm

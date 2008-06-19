@@ -2,6 +2,8 @@
 use strict;
 use Test::More qw( no_plan );
 use Sys::Info;
+use Sys::Info::Constants qw(:device_cpu);
+use Data::Dumper;
 
 my $info = Sys::Info->new;
 my $cpu  = $info->device('CPU');
@@ -14,9 +16,9 @@ my $ht      = $cpu->ht;
 my $ht2     = $cpu->hyper_threading;
 my $mhz     = $cpu->speed;
 my $load_00 = $cpu->load(  );
-my $load_01 = $cpu->load( 1);
-my $load_05 = $cpu->load( 5);
-my $load_10 = $cpu->load(10);
+my $load_01 = $cpu->load(DCPU_LOAD_LAST_01);
+my $load_05 = $cpu->load(DCPU_LOAD_LAST_05);
+my $load_10 = $cpu->load(DCPU_LOAD_LAST_10);
 
 foreach my $var (
     $id_cpu,
@@ -34,8 +36,10 @@ foreach my $var (
 
 @id_cpu = ('false') if ! @id_cpu;
 
+my $at_id_cpu = Dumper \@id_cpu;
+
 diag <<"CPU_TEST";
-    \@id_cpu  @id_cpu
+    \@id_cpu  $at_id_cpu
     \$id_cpu  $id_cpu
     \$total   $total
     \$ht      $ht

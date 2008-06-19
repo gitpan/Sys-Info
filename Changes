@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_5 Fri Jun 20 00:45:24 2008
+    => Moved CPU::load() in the the base class to make the checks for all drivers.
+    => New subclass Sys::Info::Constants.
+    => Some fixes.
+
 0.52_4 Wed Jun 18 01:53:56 2008
     => Tidied ::Windows::OS.
     => New ::Windows::OS method cdkey().

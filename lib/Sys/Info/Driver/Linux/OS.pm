@@ -29,18 +29,12 @@ use base qw( Sys::Info::Base );
 use POSIX ();
 use Cwd;
 use Carp qw( croak );
+use Sys::Info::Driver::Linux;
 
 $VERSION = '0.50';
 
 my %OSVERSION; # cache
 my %DISTROFIX = qw( suse SUSE );
-my %PATH      = (
-    fstab   => '/etc/fstab',    # for filesystem type of the current disk
-    uptime  => '/proc/uptime',  # uptime file
-    version => '/proc/version', # os version
-    resolv  => '/etc/resolv.conf',
-    #/etc/issue
-);
 
 sub edition {}
 
@@ -88,7 +82,7 @@ sub logon_server {}
 
 sub tick_count {
     my $self = shift;
-    my $uptime = $self->slurp($PATH{uptime}) || return 0;
+    my $uptime = $self->slurp( proc->{uptime} ) || return 0;
     my @uptime = split /\s+/, $uptime;
     # this file has two entries. uptime is the first one. second: idle time
     return $uptime[0];
@@ -130,7 +124,7 @@ sub domain_name {
     my $self = shift;
     my $domain;
     # hmmmm...
-    foreach my $line ( $self->read_file( $PATH{resolv} ) ) {
+    foreach my $line ( $self->read_file( proc->{resolv} ) ) {
         chomp $line;
         if ( $line =~ m{\A domain \s+ (.*) \z}xmso ) {
             $domain = $1;
@@ -145,7 +139,7 @@ sub fs {
     $self->{current_dir} = Cwd::getcwd();
 
     my(@fstab, @junk, $re);
-    foreach my $line( $self->read_file($PATH{fstab}) ) {
+    foreach my $line( $self->read_file( proc->{fstab} ) ) {
         chomp $line;
         next if $line =~ m[^#];
         @junk = split /\s+/, $line;
@@ -183,10 +177,10 @@ sub _populate_osversion {
     my $self    = shift;
     my $version = '';
 
-    if (  -e $PATH{'version'} && -f _) {
+    if (  -e proc->{'version'} && -f _) {
         $version =  $self->trim(
                         $self->slurp(
-                            $PATH{'version'},
+                            proc->{'version'},
                             'I can not open linux version file %s for reading: '
                         )
                     );

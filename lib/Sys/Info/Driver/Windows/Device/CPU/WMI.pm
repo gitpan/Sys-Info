@@ -194,62 +194,59 @@ my $WMI_INFO = {
 };
 
 my %RENAME = qw(
-    DataWidth           data_width
-    CurrentClockSpeed   speed
-    MaxClockSpeed       max_speed
-    ExtClock            bus_speed
-    AddressWidth        address_width
-    Name                name
-    LoadPercentage      load
-    DeviceID            id
-    SocketDesignation   socket_designation
-    Status              status_string
-    CpuStatus           status
-    StatusInfo          status_info
+    DataWidth                   data_width
+    CurrentClockSpeed           speed
+    MaxClockSpeed               max_speed
+    ExtClock                    bus_speed
+    AddressWidth                address_width
+    Name                        name
+    LoadPercentage              load
+    DeviceID                    device_id
+    SocketDesignation           socket_designation
+    Status                      status_string
+    CpuStatus                   status
+    StatusInfo                  status_info
 
-    Description         description
-    Manufacturer        manufacturer
-    Caption             caption
-    Version             version
-    Revision            revision
-    Stepping            stepping
-    Level               level
-    Family              family
+    Description                 description
+    Manufacturer                manufacturer
+    Caption                     caption
+    Version                     version
+    Revision                    revision
+    Stepping                    stepping
+    Level                       level
+    Family                      family
 
-    L2CacheSize         cache2_size
+    Architecture                architecture
+    ProcessorType               processor_type
+    ProcessorId                 processor_id
+    CurrentVoltage              current_voltage
+    UpgradeMethod               upgrade_method
+    Availability                availability
 
-    Architecture        architecture
-    ProcessorType       type
-    ProcessorId         pid
-    CurrentVoltage      voltage
-    UpgradeMethod       upgrade_method
-    Availability        availability
-
-    NumberOfCores               NumberOfCores
-    NumberOfLogicalProcessors   NumberOfLogicalProcessors
+    NumberOfCores               number_of_cores
+    NumberOfLogicalProcessors   number_of_logical_processors
 );
 
 # TODO: Only available under Vista (which I don't have any access right now)
 my @VISTA_OPTIONS = qw(
-
     L3CacheSpeed
     L3CacheSize
 );
 
 my @__JUNK = qw(
-    ConfigManagerErrorCode        
-    ConfigManagerUserConfig        
-    ErrorCleared        
-    ErrorDescription        
-    InstallDate        
-    L2CacheSpeed        
-    LastErrorCode        
-    OtherFamilyDescription        
-    PNPDeviceID        
-    PowerManagementCapabilities       
-    PowerManagementSupported        
-    UniqueId        
-    VoltageCaps        
+    ConfigManagerErrorCode
+    ConfigManagerUserConfig
+    ErrorCleared
+    ErrorDescription
+    InstallDate
+    L2CacheSpeed
+    LastErrorCode
+    OtherFamilyDescription
+    PNPDeviceID
+    PowerManagementCapabilities
+    PowerManagementSupported
+    UniqueId
+    VoltageCaps
 );
 
 POPULATE_UNSUPPORTED: {
@@ -257,6 +254,30 @@ POPULATE_UNSUPPORTED: {
         $RENAME{ $ij } = '____' . $ij;
     }
 }
+
+my %Win32_CacheMemory_names = qw(
+    DeviceID           device_id
+    Associativity      associativity
+    Availability       availability
+    BlockSize          block_size
+    CacheType          cache_type
+    Caption            caption
+    ErrorCorrectType   error_correct_type
+    InstalledSize      installed_size
+    Level              level
+    MaxCacheSize       max_cache_size
+    Name               name
+    NumberOfBlocks     number_of_blocks
+    Purpose            purpose
+    Status             status
+    StatusInfo         status_info
+);
+
+my %LCache_names = qw(
+    L1-Cache   L1_cache
+    L2-Cache   L2_cache
+    L3-Cache   L3_cache
+);
 
 sub meaning {
     my $self = shift;
@@ -276,14 +297,24 @@ sub wmi_cpu {
             return @{ $CACHE->{DATA} };
         }
     }
+
     local $SIG{__DIE__};
     local $@;
-    my(%attr, @attr, $val);
-    my $cache;
-    my @Lcache;
-    my $info;
-    my @foo = in WMI_FOR('Win32_Processor');
 
+    my %Lcache;
+    my @Win32_CacheMemory_names = keys %Win32_CacheMemory_names;
+    foreach my $f ( in WMI_FOR('Win32_CacheMemory') ) {
+        my $purpose = $f->Purpose;
+        next if $purpose !~ m{ \A L \d \- Cache }xmsi;
+        $Lcache{ $LCache_names{ $purpose } } = {
+            map {
+                $Win32_CacheMemory_names{$_},
+                $f->$_()
+            } @Win32_CacheMemory_names
+        };
+    }
+
+    my(%attr, @attr, $val, $info);
     OUTER: foreach my $cpu (in WMI_FOR('Win32_Processor') ) {
         INNER: foreach my $name (keys %RENAME) {
             eval { $val = $cpu->$name(); };
@@ -305,20 +336,10 @@ sub wmi_cpu {
         if($attr{bus_speed} && $attr{speed}) {
             $attr{multiplier} = sprintf '%.2f', $attr{speed} / $attr{bus_speed};
         }
-        $attr{voltage} /= 10 if $attr{voltage};
-        if ( not $attr{cache2_size}) {
-            if (! @Lcache ) {
-                $cache ||= WMI_FOR('Win32_CacheMemory');
-                foreach my $c ( in $cache ) {
-                    push @Lcache, $c->MaxCacheSize;
-                }
-            }
-            $attr{cache1_size} = $Lcache[0];
-            $attr{cache2_size} = $Lcache[1];
-        }
+        $attr{current_voltage} /= 10 if $attr{current_voltage};
         # LoadPercentage : undef dönüyor
         $attr{load} = sprintf('%.2f', $attr{load} / 100) if $attr{load};
-        push @attr, {%attr};
+        push @attr, {%attr, %Lcache };
         %attr = (); # reset
     }
 
