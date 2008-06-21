@@ -25,7 +25,8 @@ TRY_TO_LOAD: {
 
 sub load {
     my $self = shift;
-    return 0; # Fix this !!!!!
+    my @cpu  = $self->identify;
+    return $cpu[0]->{load};
 }
 
 # arabirim belirsiz. contexte göre veri döndür !!!
@@ -36,7 +37,7 @@ sub identify {
     return $self->_serve_from_cache(wantarray) if $self->{CACHE};
 
     my @cpu; # try sequence: WMI -> Registry -> Environment
-    @cpu = $self->wmi_cpu             if !$self->{disable_si};
+    @cpu = $self->wmi_cpu;
     @cpu = $self->_fetch_from_reg     if !@cpu && $self->_registry_is_ok;
     @cpu = $self->SUPER::identify(@_) if !@cpu;
     die "Failed to identify CPU"      if !@cpu;

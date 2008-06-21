@@ -29,7 +29,7 @@ print  "\n[Sys::Info::OS]\n";
 printf "OS name          : %s\n"       , $os->name;
 printf "OS long name     : %s\n"       , $os->name( long => 1 );
 printf "OS long name+ed  : %s\n"       , $os->name( long => 1, edition => 1 );
-printf "OS edition       : %s\n"       , $os->edition;
+printf "OS edition       : %s\n"       , $os->edition                 || 'N/A';
 printf "OS version       : %s\n"       , $os->version;
 printf "OS build         : %s\n"       , $os->build;
 printf "OS uptime        : %s\n"       , up($os->uptime)              || 'N/A';

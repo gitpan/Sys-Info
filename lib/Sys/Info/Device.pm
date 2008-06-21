@@ -1,10 +1,25 @@
 package Sys::Info::Device;
 use strict;
 use vars qw($VERSION);
+use constant SUPPORTED => qw( CPU BIOS );
 use Carp qw( croak );
 use Sys::Info qw( OSID );
 
 $VERSION = '0.50';
+
+BEGIN {
+    MK_ACCESSORS: {
+        no strict qw(refs);
+        foreach my $device ( SUPPORTED ) {
+            *{ '_device_' . lc( $device ) } = sub {
+                my $self = shift;
+                require 'Sys/Info/Device/' . $device . '.pm';
+                my $class = 'Sys::Info::Device::' . $device;
+                return $class->new(@_);
+            }
+        }
+    }
+}
 
 sub new {
     my $class  = shift;
@@ -13,33 +28,23 @@ sub new {
     bless $self, $class;
 
     my $method = '_device_' . lc($device);
-    if ( ! $self->can( $method ) ) {
-        croak "Bogus device ID: $device";
-    }
+    croak "Bogus device ID: $device" if ! $self->can( $method );
     return $self->$method( @_ ? (@_) : () );
-}
-
-sub _device_cpu {
-    my $self = shift;
-    require Sys::Info::Device::CPU;
-    return  Sys::Info::Device::CPU->new(@_);
-}
-
-sub _device_bios {
-    my $self = shift;
-    require Sys::Info::Device::BIOS;
-    return  Sys::Info::Device::BIOS->new(@_);
 }
 
 sub _device_available {
     my $self = shift;
-    my @list;
-    foreach my $sym ( keys %Sys::Info::Device:: ) {
-        next if $sym !~ m{ \A _device_ ([a-zA-Z0-9_]+?) \z}xmsi;
-        next if $1 eq 'available';
-        push @list, $1;
+    local $@;
+    local $SIG{__DIE__};
+    my @buf;
+
+    foreach my $test ( SUPPORTED ) {
+        eval { $self->new( $test ) };
+        next if $@;
+        push @buf, $test;
     }
-    return @list;
+
+    return @buf;
 }
 
 1;

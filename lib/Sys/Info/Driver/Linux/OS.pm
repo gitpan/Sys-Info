@@ -1,6 +1,9 @@
 package Sys::Info::Driver::Linux::OS;
 use strict;
 use vars qw( $VERSION );
+# uptime
+use constant UP_TIME          => 0;
+use constant IDLE_TIME        => 1;
 # fstab entries
 use constant FS_SPECIFIER     => 0;
 use constant MOUNT_POINT      => 1;
@@ -18,10 +21,10 @@ use constant MACHINE          => 4;
 use constant REAL_NAME_FIELD  => 6;
 use constant RE_LINUX_VERSION => qr{
    \A
-   Linux\s+version\s
+   Linux \s+ version \s
    (.+?)
    \s
-   \(.+?\@.+?\)
+   \( .+? \@ .+? \)
    (.*?)
    \z
 }xmsi;
@@ -36,7 +39,10 @@ $VERSION = '0.50';
 my %OSVERSION; # cache
 my %DISTROFIX = qw( suse SUSE );
 
-sub edition {}
+# unimplemented
+sub edition      {}
+sub tz           {}
+sub logon_server {}
 
 sub meta {
     my $self = shift;
@@ -77,15 +83,12 @@ sub meta {
     return $info{ $lcid };
 }
 
-sub tz           {}
-sub logon_server {}
-
 sub tick_count {
     my $self = shift;
     my $uptime = $self->slurp( proc->{uptime} ) || return 0;
     my @uptime = split /\s+/, $uptime;
     # this file has two entries. uptime is the first one. second: idle time
-    return $uptime[0];
+    return $uptime[UP_TIME];
 }
 
 sub name {
@@ -114,8 +117,9 @@ sub is_root {
 sub login_name {
     my $self  = shift;
     my %opt   = @_ % 2 ? () : (@_);
-    my $login = POSIX::getlogin();
-    return $opt{real} ? (getpwnam $login)[REAL_NAME_FIELD] : $login;
+    my $login = POSIX::getlogin() || return;
+    my $rv    = eval { $opt{real} ? (getpwnam $login)[REAL_NAME_FIELD] : $login };
+    return $rv;
 }
 
 sub node_name { (POSIX::uname())[NODENAME] }

@@ -35,13 +35,26 @@ sub _parse_cpuinfo {
         ($k, $v) = split /\s+:\s+/, $line;
         $cpu{$k} = $v;
     }
-    #$cpu{'cache size'} $cpu{'bogomips'}
+
+    my @flags = split /\s+/, $cpu{flags};
+    my %flags = map { $_ => 1 } @flags;
+
     return(
-        data_width    => undef,
-        address_width => undef,
+        data_width    => $flags{lm} ? 64 : 32, # guess
+        address_width => $flags{lm} ? 64 : 32, # guess
         bus_speed     => undef,
         speed         => $cpu{'cpu MHz'},
         name          => $cpu{'model name'},
+        family        => $cpu{'cpu family'},
+        manufacturer  => $cpu{vendor_id},
+        model         => $cpu{model},
+        stepping      => $cpu{stepping},
+        L1_cache      => {
+            max_cache_size => $cpu{'cache size'},
+        },
+        ( @flags ? (
+        flags => [ @flags ],
+        ) : ()),
     );
 }
 

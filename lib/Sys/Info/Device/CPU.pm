@@ -44,7 +44,10 @@ sub hyper_threading {
         my $wmi_cores   = $cpu->{number_of_cores};
         my $wmi_logical = $cpu->{number_of_logical_processors};
         if ( defined $wmi_cores && defined $wmi_logical ) {
-            return $wmi_cores != $wmi_logical;
+            if( $wmi_cores != $wmi_logical ) {
+                # return the number of threads
+                return $wmi_logical;
+            }
         }
         next if not exists $cpu->{socket_designation};
         $test{ $cpu->{socket_designation} }++;
@@ -157,13 +160,6 @@ is enabled, and this is not set, it will take the default
 value: C<10>.
 
 Timeout value is in seconds.
-
-=head3 disable_si
-
-If has a true value, I<slow interfaces> like I<Windows WMI>
-will be disabled. Such interfaces I<may> be slow, but
-returns more detailed information. Infact, if you set this
-option to a true value, you'll probably get nothing useful.
 
 =head2 identify
 

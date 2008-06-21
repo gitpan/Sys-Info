@@ -2,6 +2,13 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_6 Sun Jun 22 00:27:02 2008
+    => Fix for available devices list.
+    => ::CPU
+        * ::ht() method now returns the number of threads
+        * Removed disable_si option from ::CPU.
+        * Fixed load() for Windows.
+
 0.52_5 Fri Jun 20 00:45:24 2008
     => Moved CPU::load() in the the base class to make the checks for all drivers.
     => New subclass Sys::Info::Constants.
