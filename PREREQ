@@ -21,7 +21,7 @@ if ( OSID eq 'Windows' ) {
 }
 elsif (OSID eq 'Linux') {
    $PREREQ{'Linux::Distribution'} = 0;
-   #$RECOMMEND{'Unix::Processors'} = 0;
+   $PREREQ{'Unix::Processors'}    = 0;
 }
 else {
    # OSID eq 'Unknown'

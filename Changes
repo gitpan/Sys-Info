@@ -2,6 +2,10 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_7 Tue Jun 24 23:55:04 2008
+    => Fix broken ::CPU under linux.
+    => Unix::Processors is now required under linux.
+
 0.52_6 Sun Jun 22 00:27:02 2008
     => Fix for available devices list.
     => ::CPU
