@@ -2,6 +2,15 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_8 Thu Jun 26 01:02:15 2008
+    => ::Linux
+        * Implement ::OS::tz()
+        * Implement ::OS::edition() for Ubuntu.
+        * Implement manufacturer meta key.
+        * ::OS::build() now returns the timestamp instead of time string.
+            Use it as: print( scalar localtime $os->build ) to get a string.
+    => Updated unknown tests.
+
 0.52_7 Tue Jun 24 23:55:04 2008
     => Fix broken ::CPU under linux.
     => Unix::Processors is now required under linux.

@@ -5,6 +5,6 @@ BEGIN {
    %ENV = ();
 }
 
-do 't/04-unknown.t' or die "Can not open test 04-unknown.t: $!";
+require 't/04-unknown.t';
 
 1;

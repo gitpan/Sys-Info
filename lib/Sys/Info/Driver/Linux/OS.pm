@@ -37,26 +37,74 @@ use Sys::Info::Driver::Linux;
 $VERSION = '0.50';
 
 my %OSVERSION; # cache
+
 my %DISTROFIX = qw( suse SUSE );
 
+my $EDITION   = {
+    # taken from wikipedia
+    ubuntu => {
+        '4.10' => 'Warty Warthog',
+        '5.04' => 'Hoary Hedgehog',
+        '5.10' => 'Breezy Badger',
+        '6.06' => 'Dapper Drake',
+        '6.10' => 'Edgy Eft',
+        '7.04' => 'Feisty Fawn',
+        '7.10' => 'Gutsy Gibbon',
+        '8.04' => 'Hardy Heron',
+        '8.10' => 'Intrepid Ibex',
+    },
+};
+
+my $MANUFACTURER = {
+    # taken from wikipedia
+    ubuntu    => 'Canonical Ltd. / Ubuntu Foundation',
+    centos    => 'Lance Davis',
+    fedora    => 'Fedora Project',
+    debian    => 'Debian Project',
+    mandriva  => 'Mandriva',
+    knoppix   => 'Klaus Knopper',
+    gentoo    => 'Gentoo Foundation',
+    suse      => 'Novell',
+    slackware => 'Patrick Volkerding',
+};
+
+my $EDITION_SUPPORT      = join '|', keys %{ $EDITION      };
+my $MANUFACTURER_SUPPORT = join '|', keys %{ $MANUFACTURER };
+
 # unimplemented
-sub edition      {}
-sub tz           {}
 sub logon_server {}
+
+sub edition {
+    my $self = shift->_populate_osversion;
+    $OSVERSION{RAW}->{EDITION};
+}
+
+sub tz {
+    my $self = shift;
+    return if ! -e proc->{timezone};
+    chomp( my $rv = $self->slurp( proc->{timezone} ) );
+    return $rv;
+}
 
 sub meta {
     my $self = shift;
     my $id   = shift;
     $self->_populate_osversion();
+
+    my $manufacturer;
+    if ( $OSVERSION{NAME} =~ m{ ($MANUFACTURER_SUPPORT) }xmsi ) {
+        $manufacturer = $MANUFACTURER->{ lc $1 };
+    }
+
     my %info;
-    $info{manufacturer}              = undef;
+    $info{manufacturer}              = $manufacturer;
     $info{build_type}                = undef;
     $info{owner}                     = undef;
     $info{organization}              = undef;
     $info{product_id}                = undef;
     $info{install_date}              = $OSVERSION{RAW}->{BUILD_DATE};
     $info{boot_device}               = undef;
-    $info{time_zone}                 = undef;
+    $info{time_zone}                 = $self->tz;
     $info{physical_memory_total}     = undef;
     $info{physical_memory_available} = undef;
     $info{page_file_total}           = undef;
@@ -92,15 +140,17 @@ sub tick_count {
 }
 
 sub name {
-    my $self = shift;
+    my $self = shift->_populate_osversion;
     my %opt  = @_ % 2 ? () : (@_);
-    $self->_populate_osversion();
-    my $id   = $opt{long} ? 'LONGNAME' : 'NAME';
+    my $id   = $opt{long} ? ($opt{edition} ? 'LONGNAME_EDITION' : 'LONGNAME')
+             :              ($opt{edition} ? 'NAME_EDITION'     : 'NAME'    )
+             ;
     return $OSVERSION{ $id };
 }
 
+
 sub version   { shift->_populate_osversion(); return $OSVERSION{VERSION}      }
-sub build     { shift->_populate_osversion(); return $OSVERSION{RAW}->{BUILD} }
+sub build     { shift->_populate_osversion(); return $OSVERSION{RAW}->{BUILD_DATE} }
 sub uptime    {                               return time - shift->tick_count }
 
 # user methods
@@ -119,6 +169,7 @@ sub login_name {
     my %opt   = @_ % 2 ? () : (@_);
     my $login = POSIX::getlogin() || return;
     my $rv    = eval { $opt{real} ? (getpwnam $login)[REAL_NAME_FIELD] : $login };
+    $rv =~ s{ [,]{3,} \z }{}xms if $opt{real};
     return $rv;
 }
 
@@ -211,7 +262,7 @@ sub _populate_osversion {
 
     # kernel build date
     $build_date = $self->date2time($build_date) if $build_date;
-    my $build = $build_date ? $self->date2time($build_date) : '';
+    my $build = $build_date || '';
     $build = scalar( localtime $build ) if $build;
 
     require Linux::Distribution;
@@ -223,20 +274,34 @@ sub _populate_osversion {
         $dv  = $linux->distribution_version;
     }
 
+    my $V      = $dv || $kernel;
+    my $osname = $dn || $distro;
+
+    my $edition;
+    if ( $osname =~ m{ ($EDITION_SUPPORT) }xmsi ) {
+        my $id = lc $1;
+        $edition = $EDITION->{ $id }{ $V };
+    }
+
     %OSVERSION = (
-        NAME     => $dn || $distro,
-        LONGNAME => undef,
-        VERSION  => $dv || $kernel,
+        NAME             => $osname,
+        NAME_EDITION     => $edition ? "$osname ($edition)" : $osname,
+        LONGNAME         => '', # will be set below
+        LONGNAME_EDITION => '', # will be set below
+        VERSION  => $V,
         KERNEL   => $kernel,
         RAW      => {
                         BUILD      => defined $build      ? $build      : 0,
                         BUILD_DATE => defined $build_date ? $build_date : 0,
+                        EDITION    => $edition,
                     },
     );
 
-    $OSVERSION{LONGNAME} = sprintf "%s %s (kernel: %s)",
-                                   $OSVERSION{NAME},
-                                   $OSVERSION{VERSION},
+    $OSVERSION{LONGNAME}         = sprintf "%s %s (kernel: %s)",
+                                   @OSVERSION{ qw/ NAME         VERSION / },
+                                   $kernel;
+    $OSVERSION{LONGNAME_EDITION} = sprintf "%s %s (kernel: %s)",
+                                   @OSVERSION{ qw/ NAME_EDITION VERSION / },
                                    $kernel;
     return;
 }
@@ -264,10 +329,6 @@ sub _fs_attributes {
         },
     }->{$fs};
 }
-
-# Sys::Info::EMULATE
-#    I'm emulating linux environment on windows to test module
-#    interface. If this sub is defined, some methods will return false
 
 1;
 
