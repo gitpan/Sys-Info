@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_9 Fri Jun 27 00:20:40 2008
+    => ::Linux
+        * Implemented various OS meta keys.
+        * Implemented CPU architecture key.
+
 0.52_8 Thu Jun 26 01:02:15 2008
     => ::Linux
         * Implement ::OS::tz()

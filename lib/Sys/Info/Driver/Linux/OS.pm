@@ -91,12 +91,20 @@ sub meta {
     my $id   = shift;
     $self->_populate_osversion();
 
-    my $manufacturer;
-    if ( $OSVERSION{NAME} =~ m{ ($MANUFACTURER_SUPPORT) }xmsi ) {
-        $manufacturer = $MANUFACTURER->{ lc $1 };
-    }
+    my $manufacturer = $OSVERSION{NAME} =~ m{ ($MANUFACTURER_SUPPORT) }xmsi
+                     ? $MANUFACTURER->{ lc $1 }
+                     : undef;
 
+
+    require POSIX;
+    require Sys::Info::Device;
+
+    my $cpu   = Sys::Info::Device->new('CPU');
+    my $arch  = ($cpu->identify)[0]->{architecture};
+    my %mem   = $self->_parse_meminfo;
+    my @swaps = $self->_parse_swap;
     my %info;
+
     $info{manufacturer}              = $manufacturer;
     $info{build_type}                = undef;
     $info{owner}                     = undef;
@@ -105,22 +113,24 @@ sub meta {
     $info{install_date}              = $OSVERSION{RAW}->{BUILD_DATE};
     $info{boot_device}               = undef;
     $info{time_zone}                 = $self->tz;
-    $info{physical_memory_total}     = undef;
-    $info{physical_memory_available} = undef;
-    $info{page_file_total}           = undef;
-    $info{page_file_available}       = undef;
+
+    $info{physical_memory_total}     = $mem{MemTotal};
+    $info{physical_memory_available} = $mem{MemFree};
+    $info{page_file_total}           = $mem{SwapTotal};
+    $info{page_file_available}       = $mem{SwapFree};
+
     # windows specific
     $info{windows_dir}               = undef;
     $info{system_dir}                = undef;
     # ????
-    $info{locale}                    = undef;
+    $info{locale}                    = POSIX::setlocale( POSIX::LC_CTYPE() );
 
     $info{system_manufacturer}       = undef;
     $info{system_model}              = undef;
-    $info{system_type}               = undef;
+    $info{system_type}               = sprintf "%s based Computer", $arch;
     $info{domain}                    = undef;
 
-    $info{page_file_path}            = undef;
+    $info{page_file_path}            = join ', ', map { $_->{Filename} } @swaps;
 
     return %info if ! $id;
 
@@ -215,6 +225,34 @@ sub fs {
 }
 
 # ------------------------[ P R I V A T E ]------------------------ #
+
+sub _parse_meminfo {
+    my $self = shift;
+    my %mem;
+    foreach my $line ( split /\n/, $self->slurp( proc->{meminfo} ) ) {
+        chomp $line;
+        my($k, $v) = split /:/, $line;
+        # units in KB
+        $mem{ $k } = (split /\s+/, $self->trim( $v ) )[0];
+    }
+    return %mem;
+}
+
+sub _parse_swap {
+    my $self = shift;
+    my @swaps      = split /\n/, $self->slurp( proc->{swaps} );
+    my @swap_title = split /\s+/, shift( @swaps );
+    my @swap_list;
+    foreach my $line ( @swaps ) {
+        chomp $line;
+        my @data = split /\s+/, $line;
+        push @swap_list,
+            {
+                map { $swap_title[$_] => $data[$_] } 0..$#swap_title
+            };
+    }
+    return @swap_list;
+}
 
 sub _ip {
     my $self = shift;

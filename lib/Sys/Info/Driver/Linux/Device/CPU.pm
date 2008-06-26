@@ -4,6 +4,8 @@ use vars qw($VERSION);
 use base qw(Sys::Info::Base);
 use Sys::Info::Driver::Linux;
 use Unix::Processors;
+use POSIX ();
+use constant MACHINE => 4; # uname()
 
 $VERSION = '0.50';
 
@@ -13,9 +15,16 @@ sub identify {
 
     my $raw  = $self->slurp( proc->{cpuinfo} );
 
+    my $mach = (POSIX::uname)[MACHINE];
+    my $arch = $mach =~ m{ i [0-9] 86 }xmsi ? 'x86'
+             : $mach =~ m{ ia64       }xmsi ? 'IA64'
+             : $mach =~ m{ x86_64     }xmsi ? 'AMD-64'
+             :                                 $mach
+             ;
+
     my @cpu;
     foreach my $e ( split /\n\n/, $self->trim( $raw ) ) {
-        push @cpu, { $self->_parse_cpuinfo($e) };
+        push @cpu, { $self->_parse_cpuinfo($e), architecture => $arch };
     }
 
     $self->{CACHE} = [@cpu];
