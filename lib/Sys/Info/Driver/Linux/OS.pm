@@ -1,38 +1,12 @@
 package Sys::Info::Driver::Linux::OS;
 use strict;
 use vars qw( $VERSION );
-# uptime
-use constant UP_TIME          => 0;
-use constant IDLE_TIME        => 1;
-# fstab entries
-use constant FS_SPECIFIER     => 0;
-use constant MOUNT_POINT      => 1;
-use constant FS_TYPE          => 2;
-use constant MOUNT_OPTS       => 3;
-use constant DUMP_FREQ        => 4;
-use constant FS_CHECK_ORDER   => 5;
-# uname()
-use constant SYSNAME          => 0;
-use constant NODENAME         => 1;
-use constant RELEASE          => 2;
-use constant VERSION          => 3;
-use constant MACHINE          => 4;
-# getpwnam()
-use constant REAL_NAME_FIELD  => 6;
-use constant RE_LINUX_VERSION => qr{
-   \A
-   Linux \s+ version \s
-   (.+?)
-   \s
-   \( .+? \@ .+? \)
-   (.*?)
-   \z
-}xmsi;
 use base qw( Sys::Info::Base );
 use POSIX ();
 use Cwd;
 use Carp qw( croak );
 use Sys::Info::Driver::Linux;
+use Sys::Info::Constants qw( :linux );
 
 $VERSION = '0.50';
 
@@ -146,7 +120,7 @@ sub tick_count {
     my $uptime = $self->slurp( proc->{uptime} ) || return 0;
     my @uptime = split /\s+/, $uptime;
     # this file has two entries. uptime is the first one. second: idle time
-    return $uptime[UP_TIME];
+    return $uptime[LIN_UP_TIME];
 }
 
 sub name {
@@ -178,12 +152,12 @@ sub login_name {
     my $self  = shift;
     my %opt   = @_ % 2 ? () : (@_);
     my $login = POSIX::getlogin() || return;
-    my $rv    = eval { $opt{real} ? (getpwnam $login)[REAL_NAME_FIELD] : $login };
+    my $rv    = eval { $opt{real} ? (getpwnam $login)[LIN_REAL_NAME_FIELD] : $login };
     $rv =~ s{ [,]{3,} \z }{}xms if $opt{real};
     return $rv;
 }
 
-sub node_name { (POSIX::uname())[NODENAME] }
+sub node_name { (POSIX::uname())[LIN_NODENAME] }
 
 sub domain_name {
     my $self = shift;
@@ -209,10 +183,10 @@ sub fs {
         next if $line =~ m[^#];
         @junk = split /\s+/, $line;
         next if ! @junk || @junk != 6;
-        next if lc($junk[FS_TYPE]) eq 'swap'; # ignore swaps
-        $re = $junk[MOUNT_POINT];
+        next if lc($junk[LIN_FS_TYPE]) eq 'swap'; # ignore swaps
+        $re = $junk[LIN_MOUNT_POINT];
         next if $self->{current_dir} !~ m{\Q$re\E}i;
-        push @fstab, [ $re, $junk[FS_TYPE] ];
+        push @fstab, [ $re, $junk[LIN_FS_TYPE] ];
     }
 
     @fstab  = sort( { $b->[0] cmp $a->[0] } @fstab ) if @fstab > 1;
@@ -287,7 +261,7 @@ sub _populate_osversion {
     # format: 'Linux version 1.2.3 (foo@bar.com)'
     # format: 'Linux version 1.2.3 (foo@bar.com) (gcc 1.2.3)'
     # format: 'Linux version 1.2.3 (foo@bar.com) (gcc 1.2.3 (Redhat blah blah))'
-    if ( $str =~ RE_LINUX_VERSION ) {
+    if ( $str =~ LIN_RE_LINUX_VERSION ) {
         $kernel = $1;
         if ( $distro = $self->trim( $2 ) ) {
             if ( $distro =~ m{ \s\((.+?)\)\) \z }xms ) {
@@ -378,11 +352,43 @@ Sys::Info::Driver::Linux::OS - Linux backend
 
 =head1 SYNOPSIS
 
-Nothing public here.
+-
 
 =head1 DESCRIPTION
 
-Nothing public here.
+-
+
+=head1 METHODS
+
+Please see L<Sys::Info::OS> for definitions of these methods and more.
+
+=head2 build
+
+=head2 domain_name
+
+=head2 edition
+
+=head2 fs
+
+=head2 is_root
+
+=head2 login_name
+
+=head2 logon_server
+
+=head2 meta
+
+=head2 name
+
+=head2 node_name
+
+=head2 tick_count
+
+=head2 tz
+
+=head2 uptime
+
+=head2 version
 
 =head1 SEE ALSO
 

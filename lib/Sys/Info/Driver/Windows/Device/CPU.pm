@@ -1,12 +1,11 @@
 package Sys::Info::Driver::Windows::Device::CPU;
 use strict;
 use vars     qw( $VERSION @ISA $Registry );
-use constant HW_KEY  => 'HKEY_LOCAL_MACHINE/HARDWARE/';
-use constant CPU_KEY => HW_KEY.'DESCRIPTION/System/CentralProcessor';
 use base qw(
     Sys::Info::Driver::Unknown::Device::CPU::Env
     Sys::Info::Driver::Windows::Device::CPU::WMI
 );
+use Sys::Info::Constants qw( :windows_reg );
 
 $VERSION = '0.50';
 
@@ -18,8 +17,8 @@ TRY_TO_LOAD: {
         require Win32::TieRegistry;
         Win32::TieRegistry->import(Delimiter => '/');
     };
-    unless($@ || not defined $Registry->{+HW_KEY}) {
-        $REG = $Registry->{+CPU_KEY};
+    unless($@ || not defined $Registry->{+WIN_REG_HW_KEY}) {
+        $REG = $Registry->{ +WIN_REG_CPU_KEY };
     }
 }
 
@@ -37,7 +36,7 @@ sub identify {
     return $self->_serve_from_cache(wantarray) if $self->{CACHE};
 
     my @cpu; # try sequence: WMI -> Registry -> Environment
-    @cpu = $self->wmi_cpu;
+    @cpu = $self->_fetch_from_wmi;
     @cpu = $self->_fetch_from_reg     if !@cpu && $self->_registry_is_ok;
     @cpu = $self->SUPER::identify(@_) if !@cpu;
     die "Failed to identify CPU"      if !@cpu;
@@ -91,3 +90,46 @@ sub __env_pi {
 1;
 
 __END__
+
+=head1 NAME
+
+Sys::Info::Driver::Windows::Device::CPU - Windows CPU Device Driver
+
+=head1 SYNOPSIS
+
+-
+
+=head1 DESCRIPTION
+
+Uses C<WMI>, C<Registry> and C<ENV> to identify the CPU.
+
+=head1 METHODS
+
+=head2 identify
+
+See identify in L<Sys::Info::Device::CPU>.
+
+=head2 load
+
+See load in L<Sys::Info::Device::CPU>.
+
+=head1 SEE ALSO
+
+L<Sys::Info>,
+L<Sys::Info::Device::CPU>.
+
+=head1 AUTHOR
+
+Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Burak Gürsoy. All rights reserved.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.8 or, 
+at your option, any later version of Perl 5 you may have available.
+
+=cut

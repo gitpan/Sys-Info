@@ -2,11 +2,8 @@
 use strict;
 use Sys::Info;
 use Data::Dumper;
-use Test::More;
-
-BEGIN {
-   plan tests => 1;
-}
+use Test::More qw( no_plan );
+use constant NA => 'N/A';
 
 my $BUF  = "\n      %s";
 
@@ -21,24 +18,24 @@ print  "\n[Sys::Info]\n";
 printf "Perl version     : %s\n"       , $info->perl;
 printf "Perl build       : %s\n"       , $info->perl_build;
 printf "Perl long version: %s\n"       , $info->perl_long;
-printf "HTTP Daemon      : %s\n"       , $info->httpd || 'N/A';
-printf "IP Address       : %s\n"       , $os->ip      || 'N/A';
+printf "HTTP Daemon      : %s\n"       , $info->httpd || NA;
+printf "IP Address       : %s\n"       , $os->ip      || NA;
 
 print  "\n[Sys::Info::OS]\n";
 
 printf "OS name          : %s\n"       , $os->name;
 printf "OS long name     : %s\n"       , $os->name( long => 1 );
 printf "OS long name+ed  : %s\n"       , $os->name( long => 1, edition => 1 );
-printf "OS edition       : %s\n"       , $os->edition                 || 'N/A';
+printf "OS edition       : %s\n"       , $os->edition                 || NA;
 printf "OS version       : %s\n"       , $os->version;
 printf "OS build         : %s\n"       , $os->build;
-printf "OS uptime        : %s\n"       , up($os->uptime)              || 'N/A';
+printf "OS uptime        : %s\n"       , up($os->uptime)              || NA;
 printf "Tick count       : %s\n"       , tick($os->tick_count);
-printf "Node name        : %s\n"       , $os->node_name               || 'N/A';
-printf "Domain name      : %s\n"       , $os->domain_name             || 'N/A';
-printf "Workgroup        : %s\n"       , $os->workgroup               || 'N/A';
-printf "User name        : %s\n"       , $os->login_name              || 'N/A';
-printf "Real user name   : %s\n"       , $os->login_name( real => 1 ) || 'N/A';
+printf "Node name        : %s\n"       , $os->node_name               || NA;
+printf "Domain name      : %s\n"       , $os->domain_name             || NA;
+printf "Workgroup        : %s\n"       , $os->workgroup               || NA;
+printf "User name        : %s\n"       , $os->login_name              || NA;
+printf "Real user name   : %s\n"       , $os->login_name( real => 1 ) || NA;
 printf "Windows          : %s\n"       , $os->is_windows    ? 'yes' : 'no';
 printf "Windows          : %s\n"       , $os->is_win32      ? 'yes' : 'no';
 printf "Windows          : %s\n"       , $os->is_win        ? 'yes' : 'no';
@@ -56,23 +53,21 @@ printf "Administrator    : %s\n"       , $os->is_root_user  ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_super_user ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_superuser  ? 'yes' : 'no';
 printf "Administrator    : %s\n"       , $os->is_su         ? 'yes' : 'no';
-printf "Logon Server     : %s\n"       , $os->logon_server    || 'N/A';
-printf "Time Zone        : %s\n"       , $os->tz              || 'N/A';
+printf "Logon Server     : %s\n"       , $os->logon_server    || NA;
+printf "Time Zone        : %s\n"       , $os->tz              || NA;
 printf "File system      : $BUF\n"     , dumper( FS   => { $os->fs   } );
 printf "OS meta          : $BUF\n"     , dumper( META => { $os->meta } );
 
-printf "Windows CD Key   : %s\n"       ,  $os->cdkey    || 'N/A';
-printf "MSO CD Key       : %s\n"       , ($os->cdkey( office => 1 ))[0] || 'N/A';
+printf "Windows CD Key   : %s\n"       ,  $os->cdkey                    || NA;
+printf "MSO CD Key       : %s\n"       , ($os->cdkey( office => 1 ))[0] || NA;
 
 print  "\n[Sys::Info::CPU]\n";
 
-printf "CPU Name         : %s\n"       , scalar($cpu->identify) || 'N/A';
-printf "CPU Speed        : %s MHz\n"   , $cpu->speed            || 'N/A';
-printf "CPU load average : %s\n"       , $cpu->load             || 'N/A';
-printf "Number of CPUs   : %s\n"       , $cpu->count            || 'N/A';
+printf "CPU Name         : %s\n"       , scalar($cpu->identify) || NA;
+printf "CPU Speed        : %s MHz\n"   , $cpu->speed            || NA;
+printf "CPU load average : %s\n"       , $cpu->load             || NA;
+printf "Number of CPUs   : %s\n"       , $cpu->count            || NA;
 printf "CPU probe        : $BUF\n"     , dumper(CPU => $cpu->identify);
-
-# BIOS ???
 
 ok(1);
 

@@ -2,16 +2,9 @@ package Sys::Info::Driver::Unknown::OS;
 use strict;
 use vars qw( $VERSION );
 use POSIX ();
+use Sys::Info::Constants qw( :unknown );
 
 $VERSION = '0.50';
-
-use constant OS_SYSNAME  => 0;
-use constant OS_NODENAME => 1;
-use constant OS_RELEASE  => 2;
-use constant OS_VERSION  => 3;
-use constant OS_MACHINE  => 4;
-
-use constant RE_BUILD => qr{\A Build \s+ (\d+) .* \z}xmsio;
 
 # So, we don't support $^O yet, but we can try to emulate some features
 
@@ -31,17 +24,17 @@ sub name {
     my $self  = shift;
     my %opt   = @_ % 2 ? () : (@_);
     my @uname = POSIX::uname();
-    my $rv    = $opt{long} ? join(' ', @uname[OS_SYSNAME, OS_RELEASE])
-              :              $uname[OS_SYSNAME]
+    my $rv    = $opt{long} ? join(' ', @uname[UN_OS_SYSNAME, UN_OS_RELEASE])
+              :              $uname[UN_OS_SYSNAME]
               ;
     return $rv;
 }
 
-sub version { (POSIX::uname)[OS_RELEASE] }
+sub version { (POSIX::uname)[UN_OS_RELEASE] }
 
 sub build {
-    my $build = (POSIX::uname)[OS_VERSION] || return;
-    if ( $build =~ RE_BUILD ) {
+    my $build = (POSIX::uname)[UN_OS_VERSION] || return;
+    if ( $build =~ UN_RE_BUILD ) {
         return $1;
     }
     return $build;
@@ -49,7 +42,7 @@ sub build {
 
 sub fs { +() }
 
-sub node_name { (POSIX::uname)[OS_NODENAME] }
+sub node_name { (POSIX::uname)[UN_OS_NODENAME] }
 
 sub login_name {
     my $name;
@@ -67,11 +60,30 @@ Sys::Info::Driver::Unknown::OS - Compatibility layer for unsupported platforms
 
 =head1 SYNOPSIS
 
-Nothing public here.
+-
 
 =head1 DESCRIPTION
 
-Nothing public here.
+-
+
+=head1 METHODS
+
+Please see L<Sys::Info::OS> for definitions of these methods and more.
+
+=head2 build
+=head2 domain_name
+=head2 edition
+=head2 fs
+=head2 is_root
+=head2 login_name
+=head2 logon_server
+=head2 meta
+=head2 name
+=head2 node_name
+=head2 tick_count
+=head2 tz
+=head2 uptime
+=head2 version
 
 =head1 SEE ALSO
 

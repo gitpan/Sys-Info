@@ -278,6 +278,16 @@ These C<%ENV> keys are recognised by this module:
    PROCESSOR_REVISION
    PROCESSOR_LEVEL
 
+=head1 METHODS
+
+=head2 identify
+
+See identify in L<Sys::Info::Device::CPU>.
+
+=head2 load
+
+See load in L<Sys::Info::Device::CPU>.
+
 =head1 SEE ALSO
 
 L<Sys::Info>,

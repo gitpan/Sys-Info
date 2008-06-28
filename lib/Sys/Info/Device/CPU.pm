@@ -1,7 +1,6 @@
 package Sys::Info::Device::CPU;
 use strict;
 use vars qw( $VERSION @ISA );
-use constant DEFAULT_TIMEOUT => 10;
 use Sys::Info qw(OSID);
 use Carp qw( croak );
 use base qw( Sys::Info::Base );

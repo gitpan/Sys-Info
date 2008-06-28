@@ -215,3 +215,39 @@ sub _vista_or_08 {
 1;
 
 __END__
+
+=head1 NAME
+
+Sys::Info::Driver::Windows::OS::Editions - Interface to identify Windows editions
+
+=head1 SYNOPSIS
+
+None. Used internally.
+
+=head1 DESCRIPTION
+
+Although there are not much Windows versions, there are ridiculously lots of
+editions of Windows versions after Windows 2000. This module uses C<WMI>,
+C<GetSystemMetrics> and CPU architecture to define the correct operating
+system name and edition.
+
+=head1 SEE ALSO
+
+L<Sys::Info>,
+L<Sys::Info::Driver::Windows::XS>.
+
+=head1 AUTHOR
+
+Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Burak Gürsoy. All rights reserved.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.8 or, 
+at your option, any later version of Perl 5 you may have available.
+
+=cut

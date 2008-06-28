@@ -3,13 +3,11 @@ use strict;
 use vars qw( $VERSION @ISA @EXPORT );
 use Exporter ();
 use Carp qw( croak );
-use constant B24_DIGITS => qw( B C D F G H J K M P Q R T V W X Y 2 3 4 6 7 8 9 );
+use Sys::Info::Constants qw( WIN_B24_DIGITS );
 
 $VERSION = '0.50';
 @ISA     = qw( Exporter );
-@EXPORT  = qw( WMI WMI_FOR HASAPI decode_serial_key );
-
-my $HASAPI;
+@EXPORT  = qw( WMI WMI_FOR decode_serial_key );
 
 sub WMI {
     my $WMI = Win32::OLE->GetObject("WinMgmts:") || return; 
@@ -23,16 +21,6 @@ sub WMI_FOR {
     my $O   = $WMI->InstancesOf( $ID ) || return;
     croak Win32::OLE->LastError() if Win32::OLE->LastError() != 0;
     return $O;
-}
-
-sub HASAPI {
-    return $HASAPI if defined $HASAPI;
-    local $@;
-    local $SIG{__DIE__};
-    eval { require Win32::API; };
-    warn "Error loading Win32::API: $@" if $@;
-    $HASAPI = $@ ? 0 : 1;
-    return $HASAPI;
 }
 
 sub decode_serial_key {
@@ -61,7 +49,7 @@ sub decode_serial_key {
     }
 
     # translate base 24 "digits" to characters
-    my $cd_key = join '', (B24_DIGITS)[ @indices ];
+    my $cd_key = join '', (WIN_B24_DIGITS)[ @indices ];
 
     # Add seperators and return
     return join '-', $cd_key =~ /(.{5})/g;
@@ -101,9 +89,9 @@ Returns the C<WMI> object.
 
 Return the WMI object of the supplied C<WMI Class> name.
 
-=head2 HASAPI
+=head2 decode_serial_key KEY
 
-Returns true is C<Win32::API> is installed on the system.
+Decodes the base24 encoded C<KEY>.
 
 =head1 AUTHOR
 

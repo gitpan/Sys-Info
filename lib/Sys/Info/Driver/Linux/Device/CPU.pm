@@ -5,7 +5,7 @@ use base qw(Sys::Info::Base);
 use Sys::Info::Driver::Linux;
 use Unix::Processors;
 use POSIX ();
-use constant MACHINE => 4; # uname()
+use Sys::Info::Constants qw( LIN_MACHINE );
 
 $VERSION = '0.50';
 
@@ -15,7 +15,7 @@ sub identify {
 
     my $raw  = $self->slurp( proc->{cpuinfo} );
 
-    my $mach = (POSIX::uname)[MACHINE];
+    my $mach = (POSIX::uname)[LIN_MACHINE];
     my $arch = $mach =~ m{ i [0-9] 86 }xmsi ? 'x86'
              : $mach =~ m{ ia64       }xmsi ? 'IA64'
              : $mach =~ m{ x86_64     }xmsi ? 'AMD-64'
@@ -33,9 +33,9 @@ sub identify {
 }
 
 sub load {
-    my $self   = shift;
-    my $level  = shift;
-    my @loads  = split /\s+/, $self->slurp( proc->{loadavg} );
+    my $self  = shift;
+    my $level = shift;
+    my @loads = split /\s+/, $self->slurp( proc->{loadavg} );
     return $loads[$level];
 }
 
@@ -82,3 +82,48 @@ sub _parse_cpuinfo {
 1;
 
 __END__
+
+=head1 NAME
+
+Sys::Info::Driver::Linux::Device::CPU - Linux CPU Device Driver
+
+=head1 SYNOPSIS
+
+-
+
+=head1 DESCRIPTION
+
+Identifies the CPU with L<Unix::Processors>, L<POSIX> and C<< /proc >>.
+
+=head1 METHODS
+
+=head2 identify
+
+See identify in L<Sys::Info::Device::CPU>.
+
+=head2 load
+
+See load in L<Sys::Info::Device::CPU>.
+
+=head1 SEE ALSO
+
+L<Sys::Info>,
+L<Sys::Info::Device::CPU>,
+L<Unix::Processors>, L<POSIX>,
+proc filesystem.
+
+=head1 AUTHOR
+
+Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Burak Gürsoy. All rights reserved.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.8 or, 
+at your option, any later version of Perl 5 you may have available.
+
+=cut

@@ -60,12 +60,22 @@ Sys::Info::Driver::Unknown::Device::CPU - Compatibility layer for unsupported pl
 
 =head1 SYNOPSIS
 
-Nothing public here.
+-
 
 =head1 DESCRIPTION
 
-Nothing public here. L<Unix::Processors> is recommended for
+L<Unix::Processors> is recommended for
 unsupported platforms.
+
+=head1 METHODS
+
+=head2 identify
+
+See identify in L<Sys::Info::Device::CPU>.
+
+=head2 load
+
+See load in L<Sys::Info::Device::CPU>.
 
 =head1 SEE ALSO
 

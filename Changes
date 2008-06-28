@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_91 Sat Jun 28 17:35:50 2008
+    => Removed HASAPI() from Windows driver.
+    => All files now have Pod.
+    => Moved all constant definitions to Sys::Info::Constants.
+
 0.52_9 Fri Jun 27 00:20:40 2008
     => ::Linux
         * Implemented various OS meta keys.
@@ -28,7 +33,7 @@ Time zone is GMT+2.
         * Fixed load() for Windows.
 
 0.52_5 Fri Jun 20 00:45:24 2008
-    => Moved CPU::load() in the the base class to make the checks for all drivers.
+    => Moved CPU::load() into the base class to make the checks for all drivers.
     => New subclass Sys::Info::Constants.
     => Some fixes.
 
@@ -41,7 +46,6 @@ Time zone is GMT+2.
     => $os->login_name_real() is now deprecated. Use $os->login_name( real => 1 )
 
 0.52_2 Sun Jun  8 01:07:47 2008
-    => Sys::Info::OS::long_name() is now deprecated.
     => Improved driver loading mechanism.
     => $os->long_name deprecated. Use $os->name( long => 1 )
 
@@ -52,7 +56,7 @@ Time zone is GMT+2.
     => $os->name & $os->long_name & $os->version are now accept parameters.
     => Added a way to detect if Win32::API is available or not under Windows.
     => Initiated a XS interface to Win32 API functions.
-           TODO: Improve XS interface and disable WMI as it is so slow
+           TODO: Improve XS interface and disable WMI where possible as it is so slow
            TODO: Consider Win32::API usage.
     => Added a Core 2 detection code to Sys::Info::Driver::Unknown::Device::CPU::Env.
 

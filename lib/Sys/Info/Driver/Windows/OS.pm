@@ -11,11 +11,8 @@ use Sys::Info::Driver::Windows;
 use Sys::Info::Driver::Windows::OS::Net;
 use Carp qw( croak );
 use Win32::TieRegistry Delimiter => '/';
+use Sys::Info::Constants qw( :windows_reg :windows_wmi );
 
-use constant REG_CDKEY    => q{HKEY_LOCAL_MACHINE/Software/Microsoft/}
-                           . q{Windows NT/CurrentVersion//DigitalProductId};
-use constant REG_OCDKEY   => q{HKEY_LOCAL_MACHINE/Software/Microsoft/Office};
-use constant WMIDATE_TMPL => 'A4 A2 A2 A2 A2 A2';
 # Win32::IsAdminUser(): Perl 5.8.3 Build 809 Monday, Feb 2, 2004
 use constant is_root => defined &Win32::IsAdminUser ? Win32::IsAdminUser()
                      :  Win32::IsWin95()            ? 1
@@ -129,7 +126,7 @@ sub cdkey {
     my %opt  = @_ % 2 ? () : (@_);
 
     if ( $opt{office} ) {
-        my $base = $Registry->{ +REG_OCDKEY };
+        my $base = $Registry->{ +WIN_REG_OCDKEY };
         my @versions;
         foreach my $e ( keys %{ $base } ) {
             next if $e =~ m{[^0-9\./]}; # only get versioned keys
@@ -147,7 +144,7 @@ sub cdkey {
         return @list; #return all available keys
     }
 
-    return decode_serial_key( $Registry->{ +REG_CDKEY } );
+    return decode_serial_key( $Registry->{ +WIN_REG_CDKEY } );
 }
 
 sub meta { # linux ???
@@ -206,7 +203,7 @@ sub _wmidate_to_unix {
     my $self  = shift;
     my $thing = shift || return;
     my($date, $junk) = split /\./, $thing;
-    my($year, $mon, $mday, $hour, $min, $sec) = unpack WMIDATE_TMPL, $date;
+    my($year, $mon, $mday, $hour, $min, $sec) = unpack WIN_WMI_DATE_TMPL, $date;
     require Time::Local;
     return Time::Local::timelocal( $sec, $min, $hour, $mday, $mon-1, $year );
 }
@@ -352,6 +349,40 @@ This is a private sub-class.
 This document only discusses the driver specific parts.
 
 =head1 METHODS
+
+=head2 build
+
+=head2 cdkey
+
+=head2 domain_name
+
+=head2 edition
+
+=head2 fs
+
+=head2 is_win95
+
+=head2 is_win9x
+
+=head2 is_winnt
+
+=head2 login_name
+
+=head2 logon_server
+
+=head2 meta
+
+=head2 name
+
+=head2 product_type
+
+=head2 tick_count
+
+=head2 tz
+
+=head2 uptime
+
+Please see L<Sys::Info::OS> for definitions of these methods and more.
 
 =head2 version
 

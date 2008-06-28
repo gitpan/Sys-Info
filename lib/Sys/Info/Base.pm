@@ -1,13 +1,10 @@
 package Sys::Info::Base;
 use strict;
 use vars qw( $VERSION );
-use constant WEEKDAYS => qw( Sun Mon Tue Wed Thu Fri Sat );
-use constant MONTHS   => qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
-use constant MKTIME_YDAY  =>  0;
-use constant MKTIME_ISDST => -1;
 use IO::File;
 use Carp qw( croak );
 use Sys::Info qw( OSID );
+use Sys::Info::Constants qw( :date );
 
 $VERSION = '0.50';
 
@@ -18,12 +15,8 @@ sub load_subclass { # hybrid: static+dynamic
     my $template = shift || croak "Template missing for load_subclass()";
 
     my $class = sprintf $template, OSID;
-    (my $file  = $class) =~ s{::}{/}xmsg;
-    eval { require $file . '.pm'; };
-    if ( $@ ) {
-        my $t = "Operating system identified as: '%s'. Unable to load sub class %s: %s";
-        croak sprintf( $t, OSID, $class, $@ );
-    }
+    eval { $self->load_module( $class ); };
+    croak sprintf( "Operating system identified as: '%s'. %s", OSID, $@ ) if $@;
     return $class;
 }
 
@@ -83,8 +76,8 @@ sub date2time { # date stamp to unix time stamp conversion
     my $self   = shift;
     my $stamp  = shift || die "No date input specified!";
     my($i, $j) = (0,0); # index counters
-    my %wdays  = map { $_ => $i++ } WEEKDAYS;
-    my %months = map { $_ => $j++ } MONTHS;
+    my %wdays  = map { $_ => $i++ } DATE_WEEKDAYS;
+    my %months = map { $_ => $j++ } DATE_MONTHS;
     my @junk   = split /\s+/, $stamp;
     my $reg    = join    '|', keys %wdays;
 
@@ -106,8 +99,8 @@ sub date2time { # date stamp to unix time stamp conversion
                     $months{$month},
                     $year - 1900,
                     $wdays{$wday},
-                    MKTIME_YDAY,
-                    MKTIME_ISDST,
+                    DATE_MKTIME_YDAY,
+                    DATE_MKTIME_ISDST,
                 );
 
     return $unix;
@@ -116,3 +109,68 @@ sub date2time { # date stamp to unix time stamp conversion
 1;
 
 __END__
+
+
+=head1 NAME
+
+Sys::Info::Base - Base class Sys::Info
+
+=head1 SYNOPSIS
+
+    use base qw(Sys::Info::Base);
+    #...
+    sub foo {
+        my $self = shift;
+        my $data = $self->slurp("/foo/bar.txt");
+    }
+
+=head1 DESCRIPTION
+
+Includes some common methods.
+
+=head1 METHODS
+
+=head2 load_module CLASS
+
+Loads the module named with C<CLASS>.
+
+=head2 load_subclass TEMPLATE
+
+Loads the specified class via C<TEMPLATE>:
+
+    my $class = __PACKAGE__->load_subclass('Sys::Info::Driver::%s::OS');
+
+C<%s> will be replaced with C<OSID>. Apart from the template usage, it is
+the same as C<load_module>.
+
+=head2 trim STRING
+
+Returns the trimmed version of C<STRING>.
+
+=head2 slurp FILE
+
+Caches all contents of C<FILE> into a scalar and then returns it.
+
+=head2 read_file FILE
+
+Caches all contents of C<FILE> into an array and then returns it.
+
+=head2 date2time DATE_STRING
+
+Converts C<DATE_STRING> into unix timestamp.
+
+=head1 AUTHOR
+
+Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Burak Gürsoy. All rights reserved.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.8 or, 
+at your option, any later version of Perl 5 you may have available.
+
+=cut

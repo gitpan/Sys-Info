@@ -3,7 +3,7 @@ use strict;
 use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
 
-$VERSION = '0.52_9';
+$VERSION = '0.52_91';
 
 BEGIN {
     if ( ! defined &OSID ) {
@@ -184,6 +184,10 @@ This method is just a combination of C<perl> & C<perl_build>.
 
 If the code is used under a HTTP server and this server is recognised,
 returns the name of this server. Returns C<undef> otherwise.
+
+=head2 cpu
+
+Deprecated. Use the device() method instead.
 
 =head1 CONSTANTS
 

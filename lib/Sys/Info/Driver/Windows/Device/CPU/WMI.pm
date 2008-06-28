@@ -279,16 +279,10 @@ my %LCache_names = qw(
     L3-Cache   L3_cache
 );
 
-sub meaning {
-    my $self = shift;
-    my $name = shift || return;
-   
-}
-
-sub wmi_cpu {
+sub _fetch_from_wmi {
     my $self     = shift;
     my $is_cache = $self->{cache};
-    my $ctimeout = $self->{cache_timeout} || $self->DEFAULT_TIMEOUT; # in seconds
+    my $ctimeout = $self->{cache_timeout} || 10; # in seconds
     if ($is_cache && $CACHE) {
         if ($CACHE->{TIMESTAMP} + $ctimeout < time) {
             %{ $CACHE } = ();

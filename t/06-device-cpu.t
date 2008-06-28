@@ -36,10 +36,11 @@ foreach my $var (
 
 @id_cpu = ('false') if ! @id_cpu;
 
-my $at_id_cpu = Dumper \@id_cpu;
+my $idcd = Data::Dumper->new([\@id_cpu],['*id_cpu']);
+my $at_id_cpu = $idcd->Dump;
 
 diag <<"CPU_TEST";
-    \@id_cpu  $at_id_cpu
+    $at_id_cpu
     \$id_cpu  $id_cpu
     \$total   $total
     \$ht      $ht
