@@ -1,9 +1,9 @@
 package Sys::Info::Device::CPU;
 use strict;
-use vars qw( $VERSION @ISA );
-use Sys::Info qw(OSID);
-use Carp qw( croak );
-use base qw( Sys::Info::Base );
+use vars      qw( $VERSION @ISA   );
+use Sys::Info qw( OSID            );
+use Carp      qw( croak           );
+use base      qw( Sys::Info::Base );
 
 $VERSION = '0.50';
 
@@ -40,13 +40,11 @@ sub hyper_threading {
 
     foreach my $cpu ( @{ $self->{CACHE} } ) {
         $logical++;
-        my $wmi_cores   = $cpu->{number_of_cores};
-        my $wmi_logical = $cpu->{number_of_logical_processors};
-        if ( defined $wmi_cores && defined $wmi_logical ) {
-            if( $wmi_cores != $wmi_logical ) {
-                # return the number of threads
-                return $wmi_logical;
-            }
+        my $noc = $cpu->{number_of_cores};
+        my $nol = $cpu->{number_of_logical_processors};
+        if ( defined $noc && defined $nol ) {
+            # ht? then return the number of threads
+            return $nol if $noc != $nol;
         }
         next if not exists $cpu->{socket_designation};
         $test{ $cpu->{socket_designation} }++;
@@ -109,6 +107,7 @@ Sys::Info::Device::CPU - CPU information.
 =head1 SYNOPSIS
 
    use Sys::Info;
+   use Sys::Info::Constants qw( :device_cpu );
    my $info = Sys::Info->new;
    my $cpu  = $info->device( CPU => %options );
 
@@ -186,13 +185,18 @@ Returns C<undef> otherwise.
 The average CPU load average in the last minute. If you pass a 
 level argument, it'll return the related CPU load.
 
-    LEVEL   MEANING
-    -----   -------------------------------
-        0   CPU Load in the last  1 minute
-        1   CPU Load in the last  5 minutes
-        2   CPU Load in the last 10 minutes
+    use Sys::Info::Constants qw( :device_cpu );
+    printf "CPU Load: %s\n", $cpu->load(DCPU_LOAD_LAST_01);
 
-C<LEVEL> defaults to C<0>.
+Load level constants:
+
+    LEVEL               MEANING
+    -----------------   -------------------------------
+    DCPU_LOAD_LAST_01   CPU Load in the last  1 minute
+    DCPU_LOAD_LAST_05   CPU Load in the last  5 minutes
+    DCPU_LOAD_LAST_10   CPU Load in the last 10 minutes
+
+C<LEVEL> defaults to C<DCPU_LOAD_LAST_01>.
 
 Using this method under I<Windows> is not recommended since,
 the C<WMI> interface will possibly take at least C<2> seconds
@@ -202,7 +206,8 @@ to complete the request.
 
 =head2 ht
 
-Returns true if hyper threading is supported.
+Returns the number of threads if hyper threading is supported, returns false
+otherwise.
 
 =head1 SEE ALSO
 

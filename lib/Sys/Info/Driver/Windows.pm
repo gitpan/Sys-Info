@@ -55,7 +55,6 @@ sub decode_serial_key {
     return join '-', $cd_key =~ /(.{5})/g;
 }
 
-
 1;
 
 __END__
@@ -87,11 +86,15 @@ Returns the C<WMI> object.
 
 =head2 WMI_FOR CLASS
 
-Return the WMI object of the supplied C<WMI Class> name.
+Returns the WMI object for the supplied C<WMI Class> name.
 
 =head2 decode_serial_key KEY
 
 Decodes the base24 encoded C<KEY>.
+
+=head1 SEE ALSO
+
+L<http://www.perlmonks.org/?node_id=497616>.
 
 =head1 AUTHOR
 

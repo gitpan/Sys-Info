@@ -2,6 +2,10 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.52_92 Sat Jul 12 20:22:44 2008
+    => Pod fixes.
+    => Code cleanup.
+
 0.52_91 Sat Jun 28 17:35:50 2008
     => Removed HASAPI() from Windows driver.
     => All files now have Pod.

@@ -1,8 +1,9 @@
 package Sys::Info::OS;
 use strict;
 use vars      qw( $VERSION @ISA $AUTOLOAD );
-use Sys::Info qw(  OSID _deprecate );
-use base qw( Sys::Info::Base );
+use Sys::Info qw( OSID _deprecate         );
+use base      qw( Sys::Info::Base         );
+use Carp      qw( croak                   );
 
 $VERSION = '0.50';
 
@@ -61,6 +62,19 @@ sub new {
     bless  $self, $class;
     $self->init if $self->can('init');
     return $self;
+}
+
+sub meta {
+    my $self = shift;
+    my $id   = shift;
+    my %info = $self->SUPER::meta( $id );
+
+    return %info if ! $id;
+
+    my $lcid = lc $id;
+    croak "$id meta value is not supported" if ! exists $info{ $lcid };
+
+    return $info{ $lcid };
 }
 
 sub ip {
@@ -248,6 +262,10 @@ vary among different systems.
 =head2 product_type
 
 
+=head2 meta
+
+Returns a hash containing various informations about the OS.
+
 =head2 cdkey
 
 
@@ -342,7 +360,8 @@ I don't have any access to any other os, so this module
 
 =item *
 
-Win32::IsAdminUser() implemented in 5.8.4. If your ActivePerl
+Win32::IsAdminUser() implemented in 5.8.4 (However, it is possible to
+manually upgrade the C<Win32> module). If your ActivePerl
 is older than this, C<is_admin> method will always returns false.
 (There I<may> be a workaround for that).
 

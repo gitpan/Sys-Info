@@ -24,22 +24,23 @@ sub identify {
 
     my @cpu;
     if ( _UPOK ) {
-        my $procs = Unix::Processors->new;
-        #$procs->max_online;
-        #$procs->max_clock;
-        #$procs->max_physical;
-        #if ($procs->max_online != $procs->max_physical) {
-        #    print "Hyperthreading between ",$procs->max_physical," physical CPUs.\n";
-        #}
-        foreach my $proc ( @{ $procs->processors } ) {
+        my $up = Unix::Processors->new;
+        foreach my $proc ( @{ $up->processors } ) {
             push @cpu, {
-                data_width    => undef,
-                address_width => undef,
-                bus_speed     => undef,
-                speed         => $proc->clock,
-                name          => $proc->type,
-                #id            => $proc->id,    # cpu id 0,1,2,3...
-                #state         => $proc->state, # online/offline/poweroff
+                processor_id                 => $proc->id, # cpu id 0,1,2,3...
+                data_width                   => undef,
+                address_width                => undef,
+                bus_speed                    => undef,
+                speed                        => $proc->clock,
+                name                         => $proc->type,
+                family                       => undef,
+                manufacturer                 => undef,
+                model                        => undef,
+                stepping                     => undef,
+                number_of_cores              => $up->max_physical,
+                number_of_logical_processors => $up->max_online,
+                L1_cache                     => undef,
+                flags                        => undef,
             };
         }
     } else {

@@ -62,13 +62,11 @@ sub tz {
 
 sub meta {
     my $self = shift;
-    my $id   = shift;
     $self->_populate_osversion();
 
     my $manufacturer = $OSVERSION{NAME} =~ m{ ($MANUFACTURER_SUPPORT) }xmsi
                      ? $MANUFACTURER->{ lc $1 }
                      : undef;
-
 
     require POSIX;
     require Sys::Info::Device;
@@ -86,7 +84,6 @@ sub meta {
     $info{product_id}                = undef;
     $info{install_date}              = $OSVERSION{RAW}->{BUILD_DATE};
     $info{boot_device}               = undef;
-    $info{time_zone}                 = $self->tz;
 
     $info{physical_memory_total}     = $mem{MemTotal};
     $info{physical_memory_available} = $mem{MemFree};
@@ -96,23 +93,14 @@ sub meta {
     # windows specific
     $info{windows_dir}               = undef;
     $info{system_dir}                = undef;
-    # ????
-    $info{locale}                    = POSIX::setlocale( POSIX::LC_CTYPE() );
 
     $info{system_manufacturer}       = undef;
     $info{system_model}              = undef;
     $info{system_type}               = sprintf "%s based Computer", $arch;
-    $info{domain}                    = undef;
 
     $info{page_file_path}            = join ', ', map { $_->{Filename} } @swaps;
 
-    return %info if ! $id;
-
-    my $lcid = lc $id;
-    if ( ! exists $info{ $lcid } ) {
-        croak "$id meta value is not supported by the underlying Operating System";
-    }
-    return $info{ $lcid };
+    return %info;
 }
 
 sub tick_count {

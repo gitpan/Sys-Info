@@ -64,7 +64,7 @@ sub version {
     if ( $opt{short} ) {
         my @v = split /\./, $version;
         shift(@v);
-        return join '.', @v;
+        return join( '.', @v );
     }
 
     return $version;
@@ -120,6 +120,37 @@ sub tz {
     }
 }
 
+sub meta {
+    my $self  = shift;
+    my $id    = shift;
+    my $os    = ( in WMI_FOR('Win32_OperatingSystem' ) )[0];
+    my $cs    = ( in WMI_FOR('Win32_ComputerSystem'  ) )[0];
+    my $pf    = ( in WMI_FOR('Win32_PageFileUsage'   ) )[0];
+    my $idate = $self->_wmidate_to_unix( $os->InstallDate );
+    my %info;
+
+    $info{manufacturer}              = $os->Manufacturer;
+    $info{build_type}                = $os->BuildType;
+    $info{owner}                     = $os->RegisteredUser;
+    $info{organization}              = $os->Organization;
+    $info{product_id}                = $os->SerialNumber;
+    $info{install_date}              = $idate;
+    $info{boot_device}               = $os->BootDevice;
+    $info{physical_memory_total}     = $os->TotalVisibleMemorySize;
+    $info{physical_memory_available} = $os->FreePhysicalMemory;
+    $info{page_file_total}           = $os->TotalVirtualMemorySize;
+    $info{page_file_available}       = $os->FreeVirtualMemory;
+    # windows specific
+    $info{windows_dir}               = $os->WindowsDirectory;
+    $info{system_dir}                = $os->SystemDirectory;
+    $info{system_manufacturer}       = $cs->Manufacturer;
+    $info{system_model}              = $cs->Model;
+    $info{system_type}               = $cs->SystemType;
+    $info{page_file_path}            = $pf ? $pf->Name : undef;
+
+    return %info;
+}
+
 sub cdkey {
     return if Win32::IsWin95(); # not supported
     my $self = shift;
@@ -136,65 +167,15 @@ sub cdkey {
         }
 
         my @list;
-        foreach my $v ( sort {$b <=> $a } @versions ) {
+        foreach my $v ( sort { $b <=> $a } @versions ) {
             my $key = $base->{ $v . '/Registration' };
-            my $id  = (keys %{ $key })[0];
+            my $id  = ( keys %{ $key } )[0];
             push @list, decode_serial_key $key->{ $id . 'DigitalProductId' };
         }
         return @list; #return all available keys
     }
 
     return decode_serial_key( $Registry->{ +WIN_REG_CDKEY } );
-}
-
-sub meta { # linux ???
-    my $self = shift;
-    my $id   = shift;
-    my %info;
-
-    foreach my $objOS ( in WMI_FOR('Win32_OperatingSystem') ) {
-        $info{manufacturer}              = $objOS->Manufacturer;
-        $info{build_type}                = $objOS->BuildType;
-        $info{owner}                     = $objOS->RegisteredUser;
-        $info{organization}              = $objOS->Organization;
-        $info{product_id}                = $objOS->SerialNumber;
-        $info{install_date}              = $self->_wmidate_to_unix(
-                                                $objOS->InstallDate
-                                            );
-        $info{boot_device}               = $objOS->BootDevice;
-        $info{time_zone}                 = $objOS->CurrentTimezone;
-        $info{physical_memory_total}     = $objOS->TotalVisibleMemorySize;
-        $info{physical_memory_available} = $objOS->FreePhysicalMemory;
-        $info{page_file_total}           = $objOS->TotalVirtualMemorySize;
-        $info{page_file_available}       = $objOS->FreeVirtualMemory;
-        # windows specific
-        $info{windows_dir}               = $objOS->WindowsDirectory;
-        $info{system_dir}                = $objOS->SystemDirectory;
-        # ????
-        $info{locale}                    = $objOS->Locale;
-        last;
-    }
-
-    foreach my $objCS ( in WMI_FOR('Win32_ComputerSystem') ) {
-       $info{system_manufacturer} = $objCS->Manufacturer;
-       $info{system_model}        = $objCS->Model;
-       $info{system_type}         = $objCS->SystemType;
-       $info{domain}              = $objCS->Domain;
-       last;
-    }
-
-    foreach my $objPF ( in WMI_FOR('Win32_PageFileUsage') ) {
-        $info{page_file_path} = $objPF->Name;
-        last;
-    }
-
-    return %info if ! $id;
-
-    my $lcid = lc $id;
-    if ( ! exists $info{ $lcid } ) {
-        croak "$id meta value is not supported by the underlying Operating System";
-    }
-    return $info{ $lcid };
 }
 
 # ------------------------[ P R I V A T E ]------------------------ #
@@ -243,13 +224,13 @@ sub _populate_fs {
 }
 
 sub _osversion_table {
-    my $self  = shift;
-    my $OSV   = shift;
+    my $self    = shift;
+    my $OSV     = shift;
 
     my $t       = sub { $OSV->{MAJOR} == $_[0] && $OSV->{MINOR} == $_[1] };
     my $version = join '.', $OSV->{ID}, $OSV->{MAJOR}, $OSV->{MINOR};
+    my $ID      = $OSV->{ID};
     my($os,$edition);
-    my $ID = $OSV->{ID};
 
        if ( $ID == 0 ) {        $os = 'Win32s'              }
     elsif ( $ID == 1 ) {
@@ -308,7 +289,7 @@ sub _populate_osversion { # returns the object
             SPMINOR     => $OSV{SPMINOR},
             PRODUCTTYPE => $OSV{PRODUCTTYPE},
             EDITION     => $edition,
-            SUITEMASK   => $OSV{SUITEMASK}, #$self->_suitemask( $SUITEMASK ),
+            SUITEMASK   => $OSV{SUITEMASK},
         },
     );
 
@@ -329,7 +310,7 @@ sub _product_type {
         2 => 'Domain Controller',
         3 => 'Server',
     );
-    return $type{$pt};
+    return $type{ $pt };
 }
 
 1;
@@ -446,54 +427,3 @@ it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
-
-#------------------------------------------------------------------------------#
-
-sub _suitemask {
-   my $self = shift;
-   my $mask = shift || return;
-   # see http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfoex_str.asp
-   my %suitemask = (
-   VER_SUITE_SMALLBUSINESS            => 0x00000001, # Microsoft Small Business Server was once installed on the system, but may have been upgraded to another version of Windows. Refer to the Remarks section for more information about this bit flag
-   VER_SUITE_ENTERPRISE               => 0x00000002, # Windows Server 2003, Enterprise Edition, Windows 2000 Advanced Server, or Windows NT 4.0 Enterprise Edition, is installed. Refer to the Remarks section for more information about this bit flag
-   VER_SUITE_BACKOFFICE               => 0x00000004, # Microsoft BackOffice components are installed
-   VER_SUITE_COMMUNICATIONS           => 0x00000008, # ?
-   VER_SUITE_TERMINAL                 => 0x00000010, # Terminal Services is installed
-   VER_SUITE_SMALLBUSINESS_RESTRICTED => 0x00000020, # Microsoft Small Business Server is installed with the restrictive client license in force. Refer to the Remarks section for more information about this bit flag
-   VER_SUITE_EMBEDDEDNT               => 0x00000040, # Windows XP Embedded is installed
-   VER_SUITE_DATACENTER               => 0x00000080, # Windows Server 2003, Datacenter Edition or Windows 2000 Datacenter Server is installed
-   VER_SUITE_SINGLEUSERTS             => 0x00000100, # Terminal Services is installed, but only one interactive session is supported
-   VER_SUITE_PERSONAL                 => 0x00000200, # Windows XP Home Edition is installed
-   VER_SUITE_BLADE                    => 0x00000400, # Windows Server 2003, Web Edition is installed
-   VER_SUITE_EMBEDDED_RESTRICTED      => 0x00000800, # ?
-   VER_SUITE_SECURITY_APPLIANCE       => 0x00001000, # ?
-   );
-   my @sm;
-   foreach my $name (keys %suitemask) {
-     push @sm, $name if $suitemask{$name} & $mask;
-   }
-   return [@sm] if @sm;
-   return;
-}
-
-#JUNK
-
-sub flag_info {
-   my $self = shift;
-   # see http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfoex_str.asp
-   return {
-   VER_SUITE_SMALLBUSINESS            => 'Microsoft Small Business Server was once installed on the system, but may have been upgraded to another version of Windows',
-   VER_SUITE_ENTERPRISE               => 'Windows Server 2003, Enterprise Edition, Windows 2000 Advanced Server, or Windows NT 4.0 Enterprise Edition, is installed',
-   VER_SUITE_BACKOFFICE               => 'Microsoft BackOffice components are installed',
-   VER_SUITE_COMMUNICATIONS           => '?',
-   VER_SUITE_TERMINAL                 => 'Terminal Services is installed',
-   VER_SUITE_SMALLBUSINESS_RESTRICTED => 'Microsoft Small Business Server is installed with the restrictive client license in force',
-   VER_SUITE_EMBEDDEDNT               => 'Windows XP Embedded is installed',
-   VER_SUITE_DATACENTER               => 'Windows Server 2003, Datacenter Edition or Windows 2000 Datacenter Server is installed',
-   VER_SUITE_SINGLEUSERTS             => 'Terminal Services is installed, but only one interactive session is supported',
-   VER_SUITE_PERSONAL                 => 'Windows XP Home Edition is installed',
-   VER_SUITE_BLADE                    => 'Windows Server 2003, Web Edition is installed',
-   VER_SUITE_EMBEDDED_RESTRICTED      => '?',
-   VER_SUITE_SECURITY_APPLIANCE       => '?',
-   };
-}

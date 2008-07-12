@@ -227,11 +227,8 @@ my %RENAME = qw(
     NumberOfLogicalProcessors   number_of_logical_processors
 );
 
-# TODO: Only available under Vista (which I don't have any access right now)
-my @VISTA_OPTIONS = qw(
-    L3CacheSpeed
-    L3CacheSize
-);
+# TODO: Only available under Vista
+my @VISTA_OPTIONS = qw( L3CacheSpeed L3CacheSize );
 
 my @__JUNK = qw(
     ConfigManagerErrorCode
@@ -250,8 +247,8 @@ my @__JUNK = qw(
 );
 
 POPULATE_UNSUPPORTED: {
-    for my $ij( @__JUNK ){
-        $RENAME{ $ij } = '____' . $ij;
+    for my $j( @__JUNK ){
+        $RENAME{ $j } = '____' . $j;
     }
 }
 
@@ -331,7 +328,7 @@ sub _fetch_from_wmi {
             $attr{multiplier} = sprintf '%.2f', $attr{speed} / $attr{bus_speed};
         }
         $attr{current_voltage} /= 10 if $attr{current_voltage};
-        # LoadPercentage : undef dönüyor
+        # LoadPercentage : returns undef
         $attr{load} = sprintf('%.2f', $attr{load} / 100) if $attr{load};
         push @attr, {%attr, %Lcache };
         %attr = (); # reset
@@ -355,7 +352,7 @@ Nothing public here.
 
 =head1 DESCRIPTION
 
-WMI plugin for C<Sys::Info::Driver::Windows::Device::CPU::WMI>.
+WMI plugin.
 
 =head1 SEE ALSO
 

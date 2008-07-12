@@ -9,16 +9,48 @@ $VERSION = '0.50';
 # So, we don't support $^O yet, but we can try to emulate some features
 
 BEGIN {
-    *is_root = *uptime
-             = *tick_count
-             = *logon_server
-             = sub { 0 }
-             ;
-    *domain_name = *edition = sub {};
+    *is_root     = *uptime
+                 = *tick_count
+                 = sub { 0 }
+                 ;
+    *domain_name = *edition
+                 = *logon_server
+                 = sub {   }
+                 ;
 }
 
-sub meta {}
-sub tz   {}
+sub meta {
+    my $self = shift;
+    my %info;
+
+    $info{manufacturer}              = undef;
+    $info{build_type}                = undef;
+    $info{owner}                     = undef;
+    $info{organization}              = undef;
+    $info{product_id}                = undef;
+    $info{install_date}              = undef;
+    $info{boot_device}               = undef;
+    $info{physical_memory_total}     = undef;
+    $info{physical_memory_available} = undef;
+    $info{page_file_total}           = undef;
+    $info{page_file_available}       = undef;
+    # windows specific
+    $info{windows_dir}               = undef;
+    $info{system_dir}                = undef;
+    $info{system_manufacturer}       = undef;
+    $info{system_model}              = undef;
+    $info{system_type}               = undef;
+    $info{page_file_path}            = undef;
+
+    return %info;
+}
+
+sub tz {
+    my $self = shift;
+    return exists $ENV{TZ} ? $ENV{TZ} : undef;
+}
+
+sub fs { +() }
 
 sub name {
     my $self  = shift;
@@ -39,8 +71,6 @@ sub build {
     }
     return $build;
 }
-
-sub fs { +() }
 
 sub node_name { (POSIX::uname)[UN_OS_NODENAME] }
 
@@ -71,18 +101,31 @@ Sys::Info::Driver::Unknown::OS - Compatibility layer for unsupported platforms
 Please see L<Sys::Info::OS> for definitions of these methods and more.
 
 =head2 build
+
 =head2 domain_name
+
 =head2 edition
+
 =head2 fs
+
 =head2 is_root
+
 =head2 login_name
+
 =head2 logon_server
+
 =head2 meta
+
 =head2 name
+
 =head2 node_name
+
 =head2 tick_count
+
 =head2 tz
+
 =head2 uptime
+
 =head2 version
 
 =head1 SEE ALSO
