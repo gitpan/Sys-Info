@@ -2,7 +2,7 @@ package Sys::Info::Driver::Windows::OS;
 use strict;
 use vars qw( $VERSION );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 use base qw( Sys::Info::Driver::Windows::OS::Editions );
 use Win32;
@@ -12,13 +12,6 @@ use Sys::Info::Driver::Windows::OS::Net;
 use Carp qw( croak );
 use Win32::TieRegistry Delimiter => '/';
 use Sys::Info::Constants qw( :windows_reg :windows_wmi );
-
-# Win32::IsAdminUser(): Perl 5.8.3 Build 809 Monday, Feb 2, 2004
-use constant is_root => defined &Win32::IsAdminUser ? Win32::IsAdminUser()
-                     :  Win32::IsWin95()            ? 1
-                     :                                0
-                     ;
-use constant node_name => Win32::NodeName();
 
 # first row -> All; second row -> NT 4 SP6 and later
 my @OSV_NAMES = qw/
@@ -30,9 +23,19 @@ my %OSVERSION;  # see _populate_osversion
 my %FILESYSTEM; # see _populate_fs
 
 BEGIN {
-    *is_win9x = *is_win95 = sub{ Win32::IsWin95() };
-    *is_winnt             = sub{ Win32::IsWinNT() };
+    *is_win9x = *is_win95 = sub{ Win32::IsWin95() } if not defined &is_win9x;
+    *is_winnt             = sub{ Win32::IsWinNT() } if not defined &is_winnt;
 }
+
+sub is_root {
+    # Win32::IsAdminUser(): Perl 5.8.3 Build 809 Monday, Feb 2, 2004
+    return defined &Win32::IsAdminUser ? Win32::IsAdminUser()
+         : Win32::IsWin95()            ? 1
+         :                               0
+         ;
+}
+
+sub node_name { Win32::NodeName() }
 
 sub edition {
     my $self = shift->_populate_osversion;
@@ -337,6 +340,8 @@ This document only discusses the driver specific parts.
 
 =head2 domain_name
 
+=head2 node_name
+
 =head2 edition
 
 =head2 fs
@@ -346,6 +351,8 @@ This document only discusses the driver specific parts.
 =head2 is_win9x
 
 =head2 is_winnt
+
+=head2 is_root
 
 =head2 login_name
 

@@ -7,7 +7,7 @@ use base qw(
 );
 use Sys::Info::Constants qw( :windows_reg );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 my $REG;
 TRY_TO_LOAD: {

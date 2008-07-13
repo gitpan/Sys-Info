@@ -4,7 +4,7 @@ use vars qw[$VERSION];
 use Win32::OLE qw (in);
 use Sys::Info::Driver::Windows;
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 my $CACHE;
 

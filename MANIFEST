@@ -28,6 +28,7 @@ t/03-basic.t
 t/04-unknown.t
 t/05-unknown2.t
 t/06-device-cpu.t
+t/99-all-modules-have-the-same-version.t
 Makefile.PL
 Build.PL
 Changes

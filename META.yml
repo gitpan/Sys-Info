@@ -1,6 +1,6 @@
 ---
 name: Sys-Info
-version: 0.52_92
+version: 0.60
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Fetch information from the host system
@@ -14,76 +14,76 @@ requires:
 provides:
   Sys::Info:
     file: lib/Sys/Info.pm
-    version: 0.52_92
+    version: 0.60
   Sys::Info::Base:
     file: lib/Sys/Info/Base.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::CPU:
     file: lib/Sys/Info/CPU.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Constants:
     file: lib/Sys/Info/Constants.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Device:
     file: lib/Sys/Info/Device.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Device::CPU:
     file: lib/Sys/Info/Device/CPU.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver:
     file: lib/Sys/Info/Driver.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Linux:
     file: lib/Sys/Info/Driver/Linux.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Linux::Device:
     file: lib/Sys/Info/Driver/Linux/Device.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Linux::Device::CPU:
     file: lib/Sys/Info/Driver/Linux/Device/CPU.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Linux::OS:
     file: lib/Sys/Info/Driver/Linux/OS.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Unknown:
     file: lib/Sys/Info/Driver/Unknown.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Unknown::Device:
     file: lib/Sys/Info/Driver/Unknown/Device.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Unknown::Device::CPU:
     file: lib/Sys/Info/Driver/Unknown/Device/CPU.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Unknown::Device::CPU::Env:
     file: lib/Sys/Info/Driver/Unknown/Device/CPU/Env.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Unknown::OS:
     file: lib/Sys/Info/Driver/Unknown/OS.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows:
     file: lib/Sys/Info/Driver/Windows.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::Device:
     file: lib/Sys/Info/Driver/Windows/Device.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::Device::CPU:
     file: lib/Sys/Info/Driver/Windows/Device/CPU.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::Device::CPU::WMI:
     file: lib/Sys/Info/Driver/Windows/Device/CPU/WMI.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::OS:
     file: lib/Sys/Info/Driver/Windows/OS.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::OS::Editions:
     file: lib/Sys/Info/Driver/Windows/OS/Editions.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::Driver::Windows::OS::Net:
     file: lib/Sys/Info/Driver/Windows/OS/Net.pm
-    version: 0.50
+    version: 0.60
   Sys::Info::OS:
     file: lib/Sys/Info/OS.pm
-    version: 0.50
+    version: 0.60
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

@@ -5,7 +5,7 @@ use vars qw( $VERSION );
 use Sys::Info::Driver::Windows;
 use Sys::Info::Driver::Windows::XS qw( :metrics );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 my %VISTA_EDITION = ( # OK
    0x00000006 => q{Business Edition},

@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION);
 use base qw(Sys::Info::Driver::Unknown::Device::CPU::Env);
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 BEGIN {
     local $SIG{__DIE__};

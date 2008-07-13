@@ -5,7 +5,7 @@ use Sys::Info qw( OSID _deprecate         );
 use base      qw( Sys::Info::Base         );
 use Carp      qw( croak                   );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 BEGIN {
     my $class = __PACKAGE__->load_subclass('Sys::Info::Driver::%s::OS');

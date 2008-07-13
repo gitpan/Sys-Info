@@ -39,7 +39,7 @@ foreach my $var (
 my $idcd = Data::Dumper->new([\@id_cpu],['*id_cpu']);
 my $at_id_cpu = $idcd->Dump;
 
-diag <<"CPU_TEST";
+print <<"CPU_TEST";
     $at_id_cpu
     \$id_cpu  $id_cpu
     \$total   $total

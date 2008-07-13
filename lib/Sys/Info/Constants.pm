@@ -62,7 +62,7 @@ use constant UN_OS_VERSION  => 3;
 use constant UN_OS_MACHINE  => 4;
 use constant UN_RE_BUILD    => qr{\A Build \s+ (\d+) .* \z}xmsio;
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 @ISA     = qw(Exporter);
 
 %EXPORT_TAGS = (

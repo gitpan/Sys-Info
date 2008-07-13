@@ -8,7 +8,7 @@ use Carp qw( croak );
 use Sys::Info::Driver::Linux;
 use Sys::Info::Constants qw( :linux );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 my %OSVERSION; # cache
 

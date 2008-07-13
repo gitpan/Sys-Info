@@ -2,7 +2,7 @@ package Sys::Info::Driver::Unknown::Device;
 use strict;
 use vars qw( $VERSION );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 1;
 

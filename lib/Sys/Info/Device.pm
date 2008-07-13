@@ -5,7 +5,7 @@ use constant SUPPORTED => qw( CPU BIOS );
 use Carp qw( croak );
 use Sys::Info qw( OSID );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 BEGIN {
     MK_ACCESSORS: {

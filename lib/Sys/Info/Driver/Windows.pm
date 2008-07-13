@@ -5,7 +5,7 @@ use Exporter ();
 use Carp qw( croak );
 use Sys::Info::Constants qw( WIN_B24_DIGITS );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 @ISA     = qw( Exporter );
 @EXPORT  = qw( WMI WMI_FOR decode_serial_key );
 

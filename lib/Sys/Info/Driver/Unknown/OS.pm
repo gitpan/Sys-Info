@@ -4,7 +4,7 @@ use vars qw( $VERSION );
 use POSIX ();
 use Sys::Info::Constants qw( :unknown );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 # So, we don't support $^O yet, but we can try to emulate some features
 

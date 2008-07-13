@@ -4,7 +4,7 @@ use vars qw( $VERSION );
 use base qw( Sys::Info::Device::CPU );
 use Sys::Info qw( _deprecate );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 _deprecate({
     msg  => "Use Sys::Info->device('CPU') instead.",

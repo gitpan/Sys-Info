@@ -7,7 +7,7 @@ use Unix::Processors;
 use POSIX ();
 use Sys::Info::Constants qw( LIN_MACHINE );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 sub identify {
     my $self = shift;

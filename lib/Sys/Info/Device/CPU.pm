@@ -5,7 +5,7 @@ use Sys::Info qw( OSID            );
 use Carp      qw( croak           );
 use base      qw( Sys::Info::Base );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 BEGIN {
     push @ISA, __PACKAGE__->load_subclass('Sys::Info::Driver::%s::Device::CPU');

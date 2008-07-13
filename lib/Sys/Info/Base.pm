@@ -6,7 +6,7 @@ use Carp qw( croak );
 use Sys::Info qw( OSID );
 use Sys::Info::Constants qw( :date );
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 
 my %LOAD_MODULE; # cache
 

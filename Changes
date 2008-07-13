@@ -2,6 +2,16 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.60 Sun Jul 13 16:08:35 2008
+    => Minor code cleanup.
+    => Added a test to check the module versions.
+    => Bump the version for the new stable release after 7+ months :)
+        * More unified (if not 100% same) interface between drivers
+            - Improved Windows OS detection
+            - Improved Linux distro detection
+            - Improved CPU detection
+        * Some deprecated parts (all to be removed in v0.70 or at the end of 2008)
+
 0.52_92 Sat Jul 12 20:22:44 2008
     => Pod fixes.
     => Code cleanup.
