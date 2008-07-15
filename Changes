@@ -2,6 +2,11 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.61 Tue Jul 15 11:44:45 2008
+    => Removed 99-all-modules-have-the-same-version.t for now, until I find a
+       safer way for this test. This fixes RT#37660.
+    => Added support for Debian version/edition.
+
 0.60 Sun Jul 13 16:08:35 2008
     => Minor code cleanup.
     => Added a test to check the module versions.

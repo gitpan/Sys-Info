@@ -42,6 +42,20 @@ my $MANUFACTURER = {
     slackware => 'Patrick Volkerding',
 };
 
+my %DEBIAN_VFIX = (
+    # we get the version as "lenny/sid" for example
+    buzz   => '1.1',
+    rex    => '1.2',
+    bo     => '1.3',
+    hamm   => '2.0',
+    slink  => '2.1',
+    potato => '2.2',
+    woody  => '3.0',
+    sarge  => '3.1',
+    etch   => '4.0',
+    lenny  => '5.0',
+);
+
 my $EDITION_SUPPORT      = join '|', keys %{ $EDITION      };
 my $MANUFACTURER_SUPPORT = join '|', keys %{ $MANUFACTURER };
 
@@ -281,6 +295,17 @@ sub _populate_osversion {
     if ( $osname =~ m{ ($EDITION_SUPPORT) }xmsi ) {
         my $id = lc $1;
         $edition = $EDITION->{ $id }{ $V };
+    }
+
+    if ( ! $edition && $dv !~ m{[0-9]}xms ) {
+        if ( $dn =~ /Debian/i ) {
+            my @buf = split m{/}, $dv;
+            if ( my $test = $DEBIAN_VFIX{ lc $buf[0] } ) {
+                # Debian version comes as the edition name
+                $edition = $dv;
+                $V       = $dv = $test;
+            }
+        }
     }
 
     %OSVERSION = (
