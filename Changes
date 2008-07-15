@@ -2,6 +2,9 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.62 Tue Jul 15 23:20:50 2008
+    => Fix for cdkey test. It can fail on restricted environments.
+
 0.61 Tue Jul 15 11:44:45 2008
     => Removed 99-all-modules-have-the-same-version.t for now, until I find a
        safer way for this test. This fixes RT#37660.

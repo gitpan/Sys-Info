@@ -3,7 +3,7 @@ use strict;
 use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
 
-$VERSION = '0.61';
+$VERSION = '0.62';
 
 BEGIN {
     if ( ! defined &OSID ) {

@@ -58,8 +58,8 @@ printf "Time Zone        : %s\n"       , $os->tz              || NA;
 printf "File system      : $BUF\n"     , dumper( FS   => { $os->fs   } );
 printf "OS meta          : $BUF\n"     , dumper( META => { $os->meta } );
 
-printf "Windows CD Key   : %s\n"       ,  $os->cdkey                    || NA;
-printf "MSO CD Key       : %s\n"       , ($os->cdkey( office => 1 ))[0] || NA;
+printf "Windows CD Key   : %s\n"       , eval { $os->cdkey }                    || NA;
+printf "MSO CD Key       : %s\n"       , eval {($os->cdkey( office => 1 ))[0] } || NA;
 
 print  "\n[Sys::Info::CPU]\n";
 
