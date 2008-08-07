@@ -10,7 +10,15 @@ use Win32::OLE qw( in );
 use Sys::Info::Driver::Windows;
 use Sys::Info::Driver::Windows::OS::Net;
 use Carp qw( croak );
-use Win32::TieRegistry Delimiter => '/';
+BEGIN {
+    # SetDualVar req. in Win32::TieRegistry breaks any handler
+    local $SIG{__DIE__};
+    eval {
+        require Win32::TieRegistry;
+        Win32::TieRegistry->import( Delimiter => '/' );
+    };
+    die $@ if $@;
+}
 use Sys::Info::Constants qw( :windows_reg :windows_wmi );
 
 # first row -> All; second row -> NT 4 SP6 and later

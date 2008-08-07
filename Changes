@@ -2,6 +2,9 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.63 Thu Aug  7 22:18:39 2008
+    => Fix for Win32::TieRegistry loading routine.
+
 0.62 Tue Jul 15 23:20:50 2008
     => Fix for cdkey test. It can fail on restricted environments.
 
