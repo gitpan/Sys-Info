@@ -1,11 +1,13 @@
 #!/usr/bin/env perl -w
 use strict;
-use Sys::Info;
+use Sys::Info qw(OSID);
 use Data::Dumper;
 use Test::More qw( no_plan );
 use constant NA => 'N/A';
 
 my $BUF  = "\n      %s";
+
+ok( defined &OSID, "OSID defined");
 
 # Just try the interface methods
 # ... see if they all exist

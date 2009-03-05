@@ -2,37 +2,32 @@
 use strict;
 use vars qw(%PREREQ %RECOMMEND);
 use lib 'lib';
-use Sys::Info qw( OSID );
-use Data::Dumper;
 
-# Includes prerequisities dynamically
-# since some parts are OS-dependent
-
-warn "-> Determining prerequisities on host OS ".OSID."...\n";
+# copy-paste from Sys::Info::Constants
+BEGIN {
+    if ( ! defined &OSID ) {
+        my %OS = qw(
+            MSWin32   Windows
+            MSWin64   Windows
+            linux     Linux
+        );
+        my $ID = $OS{ $^O } || 'Unknown';
+        *OSID = sub () { "$ID" }
+    }
+}
 
 %PREREQ = (
-   'IO::File'   => 0,
-   'Test::More' => '0.40',
+   'IO::File'                   => 0,
+   'Test::More'                 => '0.40',
+   'Sys::Info::Base'            => '0.69_01',
+   'Sys::Info::Driver::Unknown' => '0.69_01',
 );
 
-if ( OSID eq 'Windows' ) {
-   # Win32::API ?
-   $PREREQ{'Sys::Info::Driver::Windows::XS'} = '0.20';
-}
-elsif (OSID eq 'Linux') {
-   $PREREQ{'Linux::Distribution'} = 0;
-   $PREREQ{'Unix::Processors'}    = 0;
-}
-else {
-   # OSID eq 'Unknown'
+$PREREQ{'Sys::Info::Driver::' . OSID } = '0.69_01';
+
+if (OSID eq 'Unknown') {
    $RECOMMEND{'Unix::Processors'} = 0;
 }
-
-#warn "[DEBUG]\n";
-#warn "\t".Data::Dumper->Dump([\%PREREQ   ], ['*PREREQ'   ]);
-#warn "\t".Data::Dumper->Dump([\%RECOMMEND], ['*RECOMMEND']);
-
-warn "-> Resuming build process...\n";
 
 1;
 

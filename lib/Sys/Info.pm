@@ -2,22 +2,12 @@ package Sys::Info;
 use strict;
 use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
+use Sys::Info::Constants qw( OSID );
 
-$VERSION = '0.63';
+$VERSION   = '0.69_01';
+@EXPORT_OK = qw( OSID );
 
-BEGIN {
-    if ( ! defined &OSID ) {
-        my %OS = qw(
-            MSWin32   Windows
-            MSWin64   Windows
-            linux     Linux
-        );
-        my $ID = $OS{ $^O } || 'Unknown';
-        *OSID = sub { "$ID" }
-    }
-}
-
-@EXPORT_OK = qw( OSID _deprecate );
+__PACKAGE__->_mk_object( $_ ) for qw( OS Device );
 
 sub import {
     my $class  = shift;
@@ -39,18 +29,6 @@ sub new {
     my $self  = {};
     bless  $self, $class;
     return $self;
-}
-
-sub os {
-    my $self = shift;
-    require Sys::Info::OS;
-    return  Sys::Info::OS->new(@_);
-}
-
-sub device {
-    my $self = shift;
-    require Sys::Info::Device;
-    return  Sys::Info::Device->new(@_);
 }
 
 sub perl { defined $^V ? sprintf( '%vd', $^V ) : _legacy_perl( $] ) }
@@ -79,7 +57,7 @@ sub httpd {
         my @mods;
         my($mn, $mv);
         foreach my $e (@data) {
-            next if $e =~ /^\(.+?\)$/;
+            next if $e =~ m{ \A \( .+? \) \z}xms;
             ($mn,$mv) = split /\//, $e;
             $mn =~ s,-(.+?)$,,;
             push @mods, $mn.'('.$mv.')';
@@ -92,37 +70,21 @@ sub httpd {
 
 # ------------------------[ P R I V A T E ]------------------------ #
 
+sub _mk_object {
+    my $self  = shift;
+    my $name  = shift || croak "_mk_object() needs a name";
+    my $class = 'Sys::Info::' . $name;
+    (my $file = $class) =~ s{::}{/}xmsg;
+    no strict qw(refs);
+    *{ lc $name } = sub { shift; require "$file.pm"; return "$class"->new(@_) };
+}
+
 sub _legacy_perl { # function
     my $v = shift or return;
-    my($rev, $patch_sub) = split /\./, $v;
-    $patch_sub =~ s/[0_]//g;
-    my @v = split //, $patch_sub;
+    my($rev, $patch_sub) = split m{[.]}xms, $v;
+    $patch_sub =~ s{[0_]}{}xmsg;
+    my @v = split m{}xms, $patch_sub;
     return sprintf( '%d.%d.%d', $rev, $v[0], $v[1] || '0' );
-}
-
-sub _deprecate {
-    my $opt   = shift || {};
-    die "Options must be a hashref" if ref($opt) ne 'HASH';
-    my $msg   = $opt->{msg} || '';
-    my $frame = defined $opt->{frame} ? $opt->{frame} : 1;
-
-    my $name  = $opt->{name};
-    if ( ! $name ) {
-        $name  = (caller $frame)[3] || (caller $frame)[0];
-        $name .= '()';
-    }
-
-    warn "$name: This interface is deprecated "
-       . "and will be removed in the future. "
-       . $msg;
-}
-
-# ------------------[ T O   B E   R E M O V E D ]------------------ #
-
-sub cpu {
-    my $self = shift;
-    _deprecate({ msg => "Use the device() method instead." });
-    return $self->device( CPU => @_ );
 }
 
 1;
@@ -230,7 +192,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2006-2008 Burak Gürsoy. All rights reserved.
+Copyright 2006-2009 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

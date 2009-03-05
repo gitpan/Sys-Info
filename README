@@ -24,12 +24,13 @@ or under Windows:
 
 DEPENDENCIES
 
-If you are under Linux:
-   Linux-Distribution   0
+Sys::Info::Base
+Sys::Info::Driver::Unknown
+Sys::Info::Driver::<SUPPORTED_OS>
 
 COPYRIGHT
 
-Copyright (c) 2006-2008 Burak Gürsoy. All rights reserved.
+Copyright (c) 2006-2009 Burak Gürsoy. All rights reserved.
 
 LICENSE
 
