@@ -6,28 +6,23 @@ use lib 'lib';
 # copy-paste from Sys::Info::Constants
 BEGIN {
     if ( ! defined &OSID ) {
-        my %OS = qw(
-            MSWin32   Windows
-            MSWin64   Windows
-            linux     Linux
+        my %OS = (
+            MSWin32  => 'Windows',
+            MSWin64  => 'Windows',
+            linux    => 'Linux',
+            #darwin   => 'MacOSX',
         );
+        $OS{$_} = 'BSD' for qw( freebsd openbsd netbsd );
         my $ID = $OS{ $^O } || 'Unknown';
         *OSID = sub () { "$ID" }
     }
 }
 
 %PREREQ = (
-   'IO::File'        => 0,
-   'Test::More'      => '0.40',
-   'Sys::Info::Base' => '0.69_05',
+   'IO::File'                   => 0,
+   'Test::More'                 => '0.40',
+   'Sys::Info::Base'            => '0.69_06',
+   'Sys::Info::Driver::' . OSID => '0.69_05',
 );
 
-$PREREQ{'Sys::Info::Driver::' . OSID } = '0.69_05';
-
-if (OSID eq 'Unknown') {
-   $RECOMMEND{'Unix::Processors'} = 0;
-}
-
 1;
-
-__END__
