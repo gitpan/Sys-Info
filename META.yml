@@ -1,6 +1,6 @@
 ---
 name: Sys-Info
-version: 0.69_05
+version: 0.69_06
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Fetch information from the host system
@@ -15,7 +15,7 @@ requires:
 provides:
   Sys::Info:
     file: lib/Sys/Info.pm
-    version: 0.69_05
+    version: 0.69_06
 generated_by: Module::Build version 0.32
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
