@@ -17,13 +17,12 @@ BEGIN {
 }
 
 %PREREQ = (
-   'IO::File'                   => 0,
-   'Test::More'                 => '0.40',
-   'Sys::Info::Base'            => '0.69_01',
-   'Sys::Info::Driver::Unknown' => '0.69_01',
+   'IO::File'        => 0,
+   'Test::More'      => '0.40',
+   'Sys::Info::Base' => '0.69_05',
 );
 
-$PREREQ{'Sys::Info::Driver::' . OSID } = '0.69_01';
+$PREREQ{'Sys::Info::Driver::' . OSID } = '0.69_05';
 
 if (OSID eq 'Unknown') {
    $RECOMMEND{'Unix::Processors'} = 0;
