@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use vars qw(%PREREQ %RECOMMEND);
+use vars qw(%PREREQ %RECOMMEND %BUILD_REQ);
 use lib 'lib';
 
 # copy-paste from Sys::Info::Constants
@@ -18,11 +18,17 @@ BEGIN {
     }
 }
 
+%RECOMMEND = ();
+
+%BUILD_REQ = (
+   'Test::More'      => '0.40',
+   'Test::Sys::Info' => '0.13',
+);
+
 %PREREQ = (
-   'IO::File'                   => 0,
-   'Test::More'                 => '0.40',
-   'Sys::Info::Base'            => '0.69_06',
-   'Sys::Info::Driver::' . OSID => '0.69_05',
+   'IO::File'                     => 0,
+   'Sys::Info::Base'              => '0.69_10',
+   'Sys::Info::Driver::' . OSID() => '0.69_10',
 );
 
 1;

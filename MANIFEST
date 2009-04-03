@@ -2,6 +2,7 @@ lib/Sys/Info.pm
 t/01-pod.t
 t/02-pod-coverage.t
 t/03-basic.t
+t/04-driver.t
 Makefile.PL
 Build.PL
 Changes
