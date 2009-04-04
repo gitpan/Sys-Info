@@ -2,6 +2,9 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.69_11 Sat Apr  4 22:19:04 2009
+    => Bump version to test bitness().
+
 0.69_10 Fri Apr  3 21:17:29 2009
     => Updated the build tools and tests.
 
