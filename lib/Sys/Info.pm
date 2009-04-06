@@ -4,7 +4,7 @@ use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
 use Sys::Info::Constants qw( OSID );
 
-$VERSION   = '0.69_11';
+$VERSION   = '0.70';
 @EXPORT_OK = qw( OSID );
 
 __PACKAGE__->_mk_object( $_ ) for qw( OS Device );

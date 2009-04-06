@@ -1,6 +1,6 @@
 ---
 name: Sys-Info
-version: 0.69_11
+version: 0.70
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Fetch information from the host system
@@ -9,15 +9,15 @@ resources:
   license: ~
 requires:
   IO::File: 0
-  Sys::Info::Base: 0.69_11
-  Sys::Info::Driver::Windows: 0.69_11
+  Sys::Info::Base: 0.70
+  Sys::Info::Driver::Windows: 0.70
 build_requires:
   Test::More: 0.40
   Test::Sys::Info: 0.13
 provides:
   Sys::Info:
     file: lib/Sys/Info.pm
-    version: 0.69_11
+    version: 0.70
 generated_by: Module::Build version 0.32
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
