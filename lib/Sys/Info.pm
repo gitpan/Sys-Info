@@ -4,7 +4,7 @@ use vars qw( $VERSION @EXPORT_OK );
 use Carp qw( croak );
 use Sys::Info::Constants qw( OSID );
 
-$VERSION   = '0.70';
+$VERSION = '0.72';
 @EXPORT_OK = qw( OSID );
 
 __PACKAGE__->_mk_object( $_ ) for qw( OS Device );
@@ -109,6 +109,9 @@ Sys::Info - Fetch information from the host system
     printf "CPU: %s\n", scalar $cpu->identify;
 
 =head1 DESCRIPTION
+
+This document describes version C<0.72> of C<Sys::Info>
+released on C<3 May 2009>.
 
 Extracts and collects information from the host system.
 
