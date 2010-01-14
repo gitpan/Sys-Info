@@ -7,6 +7,7 @@ MANIFEST
 README
 TODO
 SPEC
+.perlcriticrc
 builder/Build.pm
 builder/Build/Spec.pm
 t/201-pod.t

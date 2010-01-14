@@ -1,29 +1,31 @@
 ---
-name: Sys-Info
-version: 0.72
+abstract: 'Fetch information from the host system'
 author:
   - 'Burak Gursoy <burak@cpan.org>'
-abstract: Fetch information from the host system
-license: perl
-resources:
-  license: http://dev.perl.org/licenses/
-  repository: http://bitbucket.org/burak/cpan-sys-info/
-requires:
-  Sys::Info::Base: 0.72
-  Sys::Info::Driver::Windows: 0.72
 build_requires:
   Test::More: 0.40
-  Test::Sys::Info: 0.15
-provides:
-  Sys::Info:
-    file: lib/Sys/Info.pm
-    version: 0.72
+  Test::Sys::Info: 0.20
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3601'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Sys-Info
 no_index:
   directory:
     - monolithic_version
     - builder
     - t
-generated_by: Module::Build version 0.32
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+provides:
+  Sys::Info:
+    file: lib/Sys/Info.pm
+    version: 0.73
+requires:
+  Sys::Info::Base: 0.73
+  Sys::Info::Driver::Windows: 0.73
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://bitbucket.org/burak/cpan-sys-info/
+version: 0.73

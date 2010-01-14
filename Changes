@@ -2,6 +2,13 @@ Revision history for Perl extension Sys::Info.
 
 Time zone is GMT+2.
 
+0.73 Thu Jan 14 03:24:05 2010
+    => Perl::Critic refactoring.
+    => Driver updates:
+            Windows: Windows 7 support, bitness fixes.
+            Linux  : Merged Linux::Distribution as ::OS::Distribution.
+            BSD    : CPU bitness & flags. Swap file detection.
+
 0.72 Thu Apr 23 17:22:31 2009
     => Update builder.
 
