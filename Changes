@@ -1,6 +1,7 @@
 Revision history for Perl extension Sys::Info.
 
-Time zone is GMT+2.
+0.78 Sat Apr 16 15:20:46 2011
+    => Enable OSX driver
 
 0.73 Thu Jan 14 03:24:05 2010
     => Perl::Critic refactoring.

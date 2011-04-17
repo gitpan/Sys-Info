@@ -11,10 +11,6 @@
 * CPU flags on non-Linux OS
     - Windows & BSD are currently lacking this. BSD seem to have /proc support
         but not intalled by default. So, unreliable.
-* MacOSX Driver
-    - I don't own a Mac. If anyone wants to Work on that, just create
-        Sys::Info::Driver::MacOSX and ping me so that I can enable that
-        driver in the os detector "OSID".
 * Improve BSD driver
     - I'm testing this on DesktopBSD. Needs to be tested on others as well.
 * CPU

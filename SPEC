@@ -6,7 +6,7 @@ BEGIN {
             MSWin32  => 'Windows',
             MSWin64  => 'Windows',
             linux    => 'Linux',
-            #darwin   => 'MacOSX',
+            darwin   => 'OSX',
         );
         $OS{$_} = 'BSD' for qw( freebsd openbsd netbsd );
         my $ID = $OS{ $^O } || 'Unknown';
@@ -17,8 +17,8 @@ BEGIN {
 {
     module_name    => 'Sys::Info',
     requires       => {
-        'Sys::Info::Base'              => '0.73',
-        'Sys::Info::Driver::' . OSID() => '0.73',
+        'Sys::Info::Base'              => '0.78',
+        'Sys::Info::Driver::' . OSID() => '0.78',
         ( $] < 5.006 ? ( 'warnings::compat' => 0 ) : ()),
     },
     build_requires => {
